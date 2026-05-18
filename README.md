@@ -8,19 +8,24 @@ Após executar, o navegador abrirá automaticamente em:
 
 http://localhost:8501
 
-📂 Estrutura do Projeto
+## 📂 Estrutura do Projeto
 
+```bash
 sisvetor-dashboard/
 │
 ├── app.py
 ├── styles.css
 ├── components/
-│   └── charts/
+│   ├── charts/
 │   ├── filters/
 │   ├── kpis/
-│   ├── maps/
+│   └── maps/
+│
 ├── data/
-│   └── mock_data.py/
+│   └── mock_data.py
+│
 ├── services/
-│   └── ibge.py/
+│   └── ibge.py
+│
 └── requirements.txt
+```
