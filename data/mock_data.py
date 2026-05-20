@@ -83,7 +83,9 @@ def load_data():
 
                         infestacao = np.clip(base + np.random.normal(0, 0.1), 0, 1)
                         dispersao = np.clip(base + np.random.normal(0, 0.1), 0, 1)
-                        infeccao = np.clip(base + np.random.normal(0, 0.1), 0, 1)
+                        colonizacao = np.clip(base + np.random.normal(0, 0.1), 0, 1)
+                        infeccao_natural = np.clip(base + np.random.normal(0, 0.1), 0, 1)
+                        taxa_visitacao = np.clip(base + np.random.normal(0, 0.1), 0, 1)
 
                         uds_pesquisadas = np.random.randint(50, 500)
                         uds_positivas = int(
@@ -108,7 +110,9 @@ def load_data():
                             # Indicadores
                             "infestacao": infestacao,
                             "dispersao": dispersao,
-                            "colonizacao": infeccao,
+                            "colonizacao": colonizacao,
+                            "infeccao_natural": infeccao_natural,
+                            "taxa_visitacao": taxa_visitacao,
                             "uds_pesquisadas": uds_pesquisadas,
                             "uds_positivas": uds_positivas
                         })

@@ -21,18 +21,20 @@ st.title("SISVETOR - Dashboard")
 st.caption("Acompanhamento de Indicadores - Doença de Chagas")
 
 INDICADORES_MAP = {
-    "Infestação": "infestacao",
-    "Dispersão": "dispersao",
-    "Colonização": "colonizacao"
+    "infestacao": "Infestação",
+    "dispersao": "Dispersão",
+    "colonizacao": "Colonização",
+    "infeccao_natural": "Infecção Natural",
+    "taxa_visitacao": "Taxa de Visitação"
 }
 
-indicadores_label = st.multiselect(
-    "📊 Indicadores",
-    list(INDICADORES_MAP.keys()),
-    default=list(INDICADORES_MAP.keys())    
-)
 
-indicadores = [INDICADORES_MAP[i] for i in indicadores_label]
+indicadores = st.multiselect(
+    "📊 Indicadores",
+    options=INDICADORES_MAP,
+    default=list(INDICADORES_MAP)[:3],
+    format_func=INDICADORES_MAP.get
+)
 
 # =========================================================
 # ESTADO GLOBAL (MAPA → FILTROS)
@@ -64,8 +66,6 @@ if df_filtered is None or df_filtered.empty:
 if not indicadores:
     indicadores = ["infestacao"]
 
-df_filtered["indice_total"] = df_filtered[indicadores].mean(axis=1)
-
 # salva estado global
 st.session_state["df_filtered"] = df_filtered
 
@@ -80,7 +80,7 @@ render_kpis(df_filtered)
 col_map, col_charts = st.columns([5, 5])
 
 with col_map:
-    render_map(df_filtered)
+    render_map(df_filtered, INDICADORES_MAP, indicadores)
 
 with col_charts:
-    render_charts(df_filtered, indicadores)
+    render_charts(df_filtered, INDICADORES_MAP, indicadores)

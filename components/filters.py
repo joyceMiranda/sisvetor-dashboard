@@ -26,11 +26,11 @@ def render_filters(df):
     # MODO DE VISUALIZAÇÃO
     # =====================================================
     with st.sidebar.expander("🧭 Modo de Visualização", expanded=True):
-
         modo = st.radio(
-            "Escolha: ",
-            ["🌎 Visão Territorial", "🏢 Organização SisVetor"],
-            index=0
+            label="",
+            options=["🌎 Visão Territorial", "🏢 Organização SisVetor"],
+            index=0,
+            label_visibility="collapsed"
         )
 
    # =====================================================

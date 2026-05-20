@@ -3,7 +3,7 @@ import plotly.express as px
 import pandas as pd
 
 
-def render_charts(df, indicadores):
+def render_charts(df, INDICADORES_MAP, indicadores):
 
     df = df.copy()
 
@@ -21,15 +21,20 @@ def render_charts(df, indicadores):
 
     df_month = df.groupby("mes", as_index=False)[indicadores].mean()
 
+    # cria chart apenas dos indicadores ativos
+    rename_map = {k: INDICADORES_MAP[k] for k in indicadores}
+
+    # renomeia dataframe somente para o gráfico
+    df_plot = df_month.rename(columns=rename_map)
+
     fig1 = px.line(
-        df_month,
+        df_plot,
         x="mes",
-        y=indicadores,
+        y=list(rename_map.values()),
         markers=True,
         labels={
-            "mes": "",            # ✅ eixo X com acento
-            "value": "",  # ✅ substitui "value"
-            "variable": ""           # ✅ remove "variable"
+            "mes": "",             
+            "label": INDICADORES_MAP.keys()
         }
     )
 

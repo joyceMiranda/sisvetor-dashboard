@@ -2,9 +2,7 @@ import streamlit as st
 
 def render_kpis(df):
 
-    #st.title("📊 SISVETOR - Dashboard")
-
-
+    #st.title("📊 Indicadores de Desempenho (KPIs) ")
 
     # =====================================================
     # CSS KPIs (FUNDO DESTACADO)

@@ -23,12 +23,13 @@ ESTADO_COORDS = {
 # =========================================================
 # FUNÇÃO PRINCIPAL
 # =========================================================
-def render_map(df):
+def render_map(df, INDICADORES_MAP, indicadores):
 
     st.subheader("🗺️ Monitoramento Nacional")
 
     # =========================================================
     # GEOJSON DOS ESTADOS
+    # é um jeito de guardar informações de localização e mapas usando texto JSON.
     # =========================================================
     geojson_url = (
         "https://raw.githubusercontent.com/"
@@ -38,35 +39,33 @@ def render_map(df):
     states_geo = requests.get(geojson_url).json()
 
     # =========================================================
-    # AGREGAÇÃO (RESPONDE AOS FILTROS)
+    # AGREGAÇÃO DINÂMICA
     # =========================================================
-    df_map = df.groupby("estado", as_index=False).agg({
-        "infestacao": "mean",
-        "dispersao": "mean",
-        "colonizacao": "mean",
+
+    agg_dict = {indicador: "mean" for indicador in indicadores}
+
+    # indicadores operacionais fixos
+    agg_dict.update({
         "uds_pesquisadas": "sum",
-        "uds_positivas": "sum",
-        "indice_total": "mean"
+        "uds_positivas": "sum"
     })
+
+    df_map = df.groupby("estado", as_index=False).agg(agg_dict)
 
     # =========================================================
     # MAPA BASE (BRASIL CENTRALIZADO)
     # =========================================================
     m = folium.Map(
+        location=[-14.5, -52],   # centro geográfico do Brasil
+        zoom_start=4.2,          # 👈 aumenta zoom inicial
         tiles="cartodbpositron",
         zoom_control=True
     )
 
-    # enquadra automaticamente o Brasil
-    m.fit_bounds([
-        [-34.0, -74.0],   # sudoeste
-        [5.5, -34.0]      # nordeste
-    ])
-
     # trava navegação fora do país (efeito dashboard)
     m.options["maxBounds"] = [
-        [-34.5, -75],
-        [6, -33]
+        [-34.5, -75],   # sudoeste
+        [6, -33]        # nordeste
     ]
 
     # =========================================================
@@ -98,15 +97,16 @@ def render_map(df):
 
         lat, lon = ESTADO_COORDS[estado]
 
-        tooltip = f"""
-        <b>Estado:</b> {estado}<br>
-        <b>Índice Total:</b> {row['indice_total']:.2f}<br>
-        <b>Infestação:</b> {row['infestacao']:.2f}<br>
-        <b>Dispersão:</b> {row['dispersao']:.2f}<br>
-        <b>Infecção Natural:</b> {row['colonizacao']:.2f}<br>
-        <b>UDs Pesquisadas:</b> {int(row['uds_pesquisadas'])}<br>
-        <b>UDs Positivas:</b> {int(row['uds_positivas'])}
-        """
+        # ===============================
+        # TOOLTIP DINÂMICO
+        # ===============================
+        tooltip = f"<b>Estado:</b> {estado}<br>"
+
+        for indicador in indicadores:
+            label = INDICADORES_MAP[indicador]
+            valor = row[indicador]
+
+            tooltip += f"<b>{label}:</b> {valor:.2f}<br>"
 
         folium.Marker(
         location=[lat, lon],
