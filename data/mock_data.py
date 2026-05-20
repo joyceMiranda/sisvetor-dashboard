@@ -19,6 +19,9 @@ def load_data():
         "PR", "SC", "RS"
     ]
 
+    # =====================================================
+    # REGIÕES
+    # =====================================================
     regioes_map = {
         "AC": "Norte", "AM": "Norte", "RR": "Norte", "PA": "Norte", "AP": "Norte", "RO": "Norte", "TO": "Norte",
         "MA": "Nordeste", "PI": "Nordeste", "CE": "Nordeste", "RN": "Nordeste",
@@ -28,13 +31,41 @@ def load_data():
         "PR": "Sul", "SC": "Sul", "RS": "Sul"
     }
 
+    # =====================================================
+    # MUNICÍPIOS (MOCK COMPLETO)
+    # =====================================================
     municipios = {
+        "AC": ["Rio Branco", "Cruzeiro do Sul", "Sena Madureira"],
+        "AM": ["Manaus", "Parintins", "Itacoatiara"],
+        "RR": ["Boa Vista", "Rorainópolis", "Caracaraí"],
+        "PA": ["Belém", "Santarém", "Ananindeua"],
+        "AP": ["Macapá", "Santana", "Laranjal do Jari"],
+        "RO": ["Porto Velho", "Ji-Paraná", "Ariquemes"],
+        "TO": ["Palmas", "Araguaína", "Gurupi"],
+
+        "MA": ["São Luís", "Imperatriz", "Caxias"],
+        "PI": ["Teresina", "Parnaíba", "Picos"],
+        "CE": ["Fortaleza", "Sobral", "Juazeiro do Norte"],
+        "RN": ["Natal", "Mossoró", "Parnamirim"],
+        "PB": ["João Pessoa", "Campina Grande", "Santa Rita"],
+        "PE": ["Recife", "Olinda", "Caruaru"],
+        "AL": ["Maceió", "Arapiraca", "Palmeira dos Índios"],
+        "SE": ["Aracaju", "Itabaiana", "Lagarto"],
+        "BA": ["Salvador", "Feira de Santana", "Vitória da Conquista"],
+
+        "MT": ["Cuiabá", "Várzea Grande", "Rondonópolis"],
+        "MS": ["Campo Grande", "Dourados", "Três Lagoas"],
+        "GO": ["Goiânia", "Anápolis", "Aparecida de Goiânia"],
+        "DF": ["Brasília", "Plano Piloto", "Ceilândia"],
+
+        "MG": ["Belo Horizonte", "Uberlândia", "Contagem"],
+        "ES": ["Vitória", "Vila Velha", "Serra"],
+        "RJ": ["Rio de Janeiro", "Niterói", "Duque de Caxias"],
         "SP": ["São Paulo", "Campinas", "Santos"],
-        "RJ": ["Rio de Janeiro", "Niterói", "Petrópolis"],
-        "MG": ["Belo Horizonte", "Uberlândia", "Juiz de Fora"],
-        "BA": ["Salvador", "Feira de Santana", "Ilhéus"],
-        "RS": ["Porto Alegre", "Caxias do Sul", "Pelotas"],
+
         "PR": ["Curitiba", "Londrina", "Maringá"],
+        "SC": ["Florianópolis", "Joinville", "Blumenau"],
+        "RS": ["Porto Alegre", "Caxias do Sul", "Pelotas"]
     }
 
     # =====================================================
@@ -56,21 +87,19 @@ def load_data():
 
     data = []
 
+    # =====================================================
+    # GERAÇÃO DO DATASET
+    # =====================================================
     for ano in anos:
         for mes in meses:
             for uf in estados:
 
                 regiao = regioes_map[uf]
 
-                mun_list = municipios.get(
-                    uf,
-                    [f"Município {uf} A", f"Município {uf} B"]
-                )
+                mun_list = municipios.get(uf)
 
-                # Define SES baseada no estado
                 ses = f"SES - {uf}"
 
-                # Se não existir SES mapeada → usa genérica
                 territorios = subunidades_map.get(
                     ses,
                     ["Território 1"]
@@ -102,12 +131,12 @@ def load_data():
                             "municipio": mun,
                             "regiao": regiao,
 
-                            # 👇 NOVAS COLUNAS ORGANIZACIONAIS
+                            # organização
                             "unidade": unidade,
                             "subunidade": ses,
                             "territorio": territorio,
 
-                            # Indicadores
+                            # indicadores
                             "infestacao": infestacao,
                             "dispersao": dispersao,
                             "colonizacao": colonizacao,
@@ -117,6 +146,4 @@ def load_data():
                             "uds_positivas": uds_positivas
                         })
 
-    df = pd.DataFrame(data)
-
-    return df
+    return pd.DataFrame(data)

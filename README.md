@@ -20,6 +20,8 @@ app.py
 │
 ├── assets/
 │   └── style.css       # Customização visual (UI/UX)
+├── utils/
+│   └── maps_utils.py   # dados geográficos
 ```
 
 ---

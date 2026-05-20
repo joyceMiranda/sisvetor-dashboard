@@ -5,6 +5,7 @@ from components.filters import render_filters
 from components.kpis import render_kpis
 from components.maps import render_map
 from components.charts import render_charts
+from utils.maps_utils import NOME_UF_MAP
 
 st.set_page_config(layout="wide")
 
@@ -46,6 +47,10 @@ indicadores = st.multiselect(
     format_func=INDICADORES_MAP.get,
     label_visibility="collapsed"
 )
+
+if st.sidebar.button("⬅️ Voltar Brasil"):
+    st.session_state["estado"] = "Todos"
+    st.rerun()
 
 # =========================================================
 # ESTADO GLOBAL (MAPA → FILTROS)
@@ -91,7 +96,19 @@ render_kpis(df_filtered)
 col_map, col_charts = st.columns([5, 5])
 
 with col_map:
-    render_map(df_filtered, INDICADORES_MAP, indicadores)
+    map_data = render_map(df_filtered, INDICADORES_MAP, indicadores)
+
+    if map_data and map_data.get("last_active_drawing"):
+        props = map_data["last_active_drawing"].get("properties", {})
+
+        nome = props.get("name")
+
+        estado = NOME_UF_MAP.get(nome)
+
+        if estado:
+            st.session_state["estado"] = estado
+            st.rerun()
 
 with col_charts:
     render_charts(df_filtered, INDICADORES_MAP, indicadores)
+
