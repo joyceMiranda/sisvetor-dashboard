@@ -1,26 +1,90 @@
-▶️ Executar o Protótipo
+# 🏛️ SISVETOR Chagas — Dashboard de Vigilância Entomológica
 
-Para iniciar o dashboard localmente:
+Sistema de monitoramento dos indicadores entomológicos da Doença de Chagas, com visualização territorial, análise temporal e suporte à decisão em saúde pública.
 
-streamlit run .\app.py
+---
 
-Após executar, o navegador abrirá automaticamente em:
+## 🧱 Arquitetura do Projeto
 
-http://localhost:8501
-
-## 📂 Estrutura do Projeto
-
-```bash
-sisvetor-dashboard/
+```
+app.py
 │
-├── app.py
-├── styles.css
 ├── components/
-│   ├── charts/
-│   ├── filters/
-│   ├── kpis/
-│   └── maps/
+│   ├── filters.py      # Filtros territoriais e organizacionais
+│   ├── maps.py         # Mapa interativo (Folium)
+│   ├── charts.py       # Gráficos (Plotly)
+│   └── kpis.py         # Indicadores resumidos
 │
 ├── data/
-│   └── mock_data.py
+│   └── mock_data.py    # Dados simulados
+│
+├── assets/
+│   └── style.css       # Customização visual (UI/UX)
 ```
+
+---
+
+## ⚙️ Stack Tecnológica
+
+### 🖥️ Interface
+
+* Streamlit
+
+### 📊 Visualização de dados
+
+* Plotly Express
+* Folium (mapas interativos)
+* GeoJSON (limites territoriais)
+
+### 🗂️ Processamento de dados
+
+* Pandas
+* NumPy
+
+---
+
+## 🌎 Módulos do Sistema
+
+### 📍 Visão Territorial
+
+Hierarquia geográfica:
+
+```
+Nacional → Regional → Estado → Município
+```
+
+---
+
+### 🏢 Organização SISVETOR
+
+Estrutura institucional:
+
+```
+Unidade → Subunidade → Território
+```
+
+---
+
+### 📊 Indicadores Monitorados
+
+* Infestação
+* Dispersão
+* Colonização 
+* Infecção Natural
+
+---
+
+## 🚀 Execução
+
+```bash
+streamlit run app.py
+```
+
+---
+
+## 📌 Status do Projeto
+
+🚧 Em desenvolvimento ativo
+📊 Foco em expansão de indicadores e organização SISVETOR
+
+---

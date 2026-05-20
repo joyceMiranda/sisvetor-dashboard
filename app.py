@@ -8,6 +8,15 @@ from components.charts import render_charts
 
 st.set_page_config(layout="wide")
 
+# =========================================================
+# IMPORTAÇÃO CSS
+# =========================================================
+def load_css(file_path):
+    with open(file_path) as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+load_css("assets/styles.css")
+
 
 # =========================================================
 # DADOS
@@ -17,8 +26,10 @@ df = load_data()
 # =========================================================
 # TÍTULO DA PÁGINA
 # =========================================================
-st.title("SISVETOR - Dashboard")
-st.caption("Acompanhamento de Indicadores - Doença de Chagas")
+st.title("SISVETOR Chagas — Dashboard de Vigilância Entomológica")
+st.caption("")
+
+st.subheader("📊 Indicadores")
 
 INDICADORES_MAP = {
     "infestacao": "Infestação",
@@ -28,12 +39,12 @@ INDICADORES_MAP = {
     "taxa_visitacao": "Taxa de Visitação"
 }
 
-
 indicadores = st.multiselect(
-    "📊 Indicadores",
+    "",
     options=INDICADORES_MAP,
-    default=list(INDICADORES_MAP)[:3],
-    format_func=INDICADORES_MAP.get
+    default=list(INDICADORES_MAP)[:1],
+    format_func=INDICADORES_MAP.get,
+    label_visibility="collapsed"
 )
 
 # =========================================================

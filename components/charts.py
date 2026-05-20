@@ -33,7 +33,8 @@ def render_charts(df, INDICADORES_MAP, indicadores):
         y=list(rename_map.values()),
         markers=True,
         labels={
-            "mes": "",             
+            "mes": "",  
+            "value": "",             
             "label": INDICADORES_MAP.keys()
         }
     )

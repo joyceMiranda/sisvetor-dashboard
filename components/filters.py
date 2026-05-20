@@ -25,10 +25,10 @@ def render_filters(df):
     # =====================================================
     # MODO DE VISUALIZAÇÃO
     # =====================================================
-    with st.sidebar.expander("🧭 Modo de Visualização", expanded=True):
+    with st.sidebar.expander("Escopo da Análise", expanded=True):
         modo = st.radio(
             label="",
-            options=["🌎 Visão Territorial", "🏢 Organização SisVetor"],
+            options=["🌎 Visão Territorial", "🏢 Áreas de Gestão"],
             index=0,
             label_visibility="collapsed"
         )
@@ -91,10 +91,10 @@ def render_filters(df):
     # =====================================================
     # 🏢 ORGANIZAÇÃO SISVETOR
     # =====================================================
-    if modo == "🏢 Organização SisVetor":
+    if modo == "🏢 Áreas de Gestão":
 
         with st.sidebar.expander(
-            ":material/account_tree: Organização SisVetor",
+            "🏢 Áreas de Gestão",
             expanded=True
         ):
 
