@@ -23,9 +23,4 @@ sisvetor-dashboard/
 │
 ├── data/
 │   └── mock_data.py
-│
-├── services/
-│   └── ibge.py
-│
-└── requirements.txt
 ```
