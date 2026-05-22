@@ -48,9 +48,6 @@ indicadores = st.multiselect(
     label_visibility="collapsed"
 )
 
-if st.sidebar.button("⬅️ Voltar Brasil"):
-    st.session_state["estado"] = "Todos"
-    st.rerun()
 
 # =========================================================
 # ESTADO GLOBAL (MAPA → FILTROS)

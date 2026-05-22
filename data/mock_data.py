@@ -3,69 +3,131 @@ import pandas as pd
 import numpy as np
 
 
+# =====================================================
+# FUNÇÃO PRINCIPAL DE CARGA DO DATASET
+# =====================================================
+# @st.cache_data:
+# faz cache no Streamlit para evitar recriar
+# o dataset a cada interação do usuário
+# =====================================================
 @st.cache_data
 def load_data():
 
+    # =====================================================
+    # SEED FIXA
+    # =====================================================
+    # garante que os números aleatórios gerados
+    # sejam sempre os mesmos
+    # útil para manter o mock consistente
+    # =====================================================
     np.random.seed(42)
 
     # =====================================================
-    # ESTADOS
+    # ESTADOS UTILIZADOS NO MOCK
+    # =====================================================
+    # apenas estes estados terão dados
+    # e aparecerão destacados no mapa
     # =====================================================
     estados = [
-        "AC", "AM", "RR", "PA", "AP", "RO", "TO",
-        "MA", "PI", "CE", "RN", "PB", "PE", "AL", "SE", "BA",
-        "MT", "MS", "GO", "DF",
-        "MG", "ES", "RJ", "SP",
-        "PR", "SC", "RS"
+        "AM",
+        "BA",
+        "DF",
+        "GO",
+        "MG",
+        "PA",
+        "RO"
     ]
 
     # =====================================================
-    # REGIÕES
+    # MAPEAMENTO DAS REGIÕES
+    # =====================================================
+    # relaciona cada UF à sua região brasileira
     # =====================================================
     regioes_map = {
-        "AC": "Norte", "AM": "Norte", "RR": "Norte", "PA": "Norte", "AP": "Norte", "RO": "Norte", "TO": "Norte",
-        "MA": "Nordeste", "PI": "Nordeste", "CE": "Nordeste", "RN": "Nordeste",
-        "PB": "Nordeste", "PE": "Nordeste", "AL": "Nordeste", "SE": "Nordeste", "BA": "Nordeste",
-        "MT": "Centro-Oeste", "MS": "Centro-Oeste", "GO": "Centro-Oeste", "DF": "Centro-Oeste",
-        "MG": "Sudeste", "ES": "Sudeste", "RJ": "Sudeste", "SP": "Sudeste",
-        "PR": "Sul", "SC": "Sul", "RS": "Sul"
+
+        "AM": "Norte",
+
+        "BA": "Nordeste",
+
+        "DF": "Centro-Oeste",
+
+        "GO": "Centro-Oeste",
+
+        "MG": "Sudeste",
+
+        "PA": "Norte",
+
+        "RO": "Norte"
     }
 
     # =====================================================
-    # MUNICÍPIOS (MOCK COMPLETO)
+    # MUNICÍPIOS
+    # =====================================================
+    # nomes compatíveis com o GeoJSON IBGE
+    # utilizado no mapa do Folium
     # =====================================================
     municipios = {
-        "AC": ["Rio Branco", "Cruzeiro do Sul", "Sena Madureira"],
-        "AM": ["Manaus", "Parintins", "Itacoatiara"],
-        "RR": ["Boa Vista", "Rorainópolis", "Caracaraí"],
-        "PA": ["Belém", "Santarém", "Ananindeua"],
-        "AP": ["Macapá", "Santana", "Laranjal do Jari"],
-        "RO": ["Porto Velho", "Ji-Paraná", "Ariquemes"],
-        "TO": ["Palmas", "Araguaína", "Gurupi"],
 
-        "MA": ["São Luís", "Imperatriz", "Caxias"],
-        "PI": ["Teresina", "Parnaíba", "Picos"],
-        "CE": ["Fortaleza", "Sobral", "Juazeiro do Norte"],
-        "RN": ["Natal", "Mossoró", "Parnamirim"],
-        "PB": ["João Pessoa", "Campina Grande", "Santa Rita"],
-        "PE": ["Recife", "Olinda", "Caruaru"],
-        "AL": ["Maceió", "Arapiraca", "Palmeira dos Índios"],
-        "SE": ["Aracaju", "Itabaiana", "Lagarto"],
-        "BA": ["Salvador", "Feira de Santana", "Vitória da Conquista"],
+        # =============================================
+        # AMAZONAS
+        # =============================================
+        "AM": [
+            "Manaus",
+            "Parintins",
+            "Itacoatiara"
+        ],
 
-        "MT": ["Cuiabá", "Várzea Grande", "Rondonópolis"],
-        "MS": ["Campo Grande", "Dourados", "Três Lagoas"],
-        "GO": ["Goiânia", "Anápolis", "Aparecida de Goiânia"],
-        "DF": ["Brasília", "Plano Piloto", "Ceilândia"],
+        # =============================================
+        # BAHIA
+        # =============================================
+        "BA": [
+            "Salvador",
+            "Feira de Santana",
+            "Vitória da Conquista"
+        ],
 
-        "MG": ["Belo Horizonte", "Uberlândia", "Contagem"],
-        "ES": ["Vitória", "Vila Velha", "Serra"],
-        "RJ": ["Rio de Janeiro", "Niterói", "Duque de Caxias"],
-        "SP": ["São Paulo", "Campinas", "Santos"],
+        # =============================================
+        # DISTRITO FEDERAL
+        # =============================================
+        "DF": [
+            "Brasília"
+        ],
 
-        "PR": ["Curitiba", "Londrina", "Maringá"],
-        "SC": ["Florianópolis", "Joinville", "Blumenau"],
-        "RS": ["Porto Alegre", "Caxias do Sul", "Pelotas"]
+        # =============================================
+        # GOIÁS
+        # =============================================
+        "GO": [
+            "Goiânia",
+            "Anápolis",
+            "Aparecida de Goiânia"
+        ],
+
+        # =============================================
+        # MINAS GERAIS
+        # =============================================
+        "MG": [
+            "Belo Horizonte",
+            "Uberlândia",
+            "Contagem"
+        ],
+
+        # =============================================
+        # PARÁ
+        # =============================================
+        "PA": [
+            "Belém",
+            "Santarém",
+            "Marabá"
+        ],
+
+        # =============================================
+        # RONDÔNIA
+        # =============================================
+        "RO": [
+            "Porto Velho",
+            "Ji-Paraná",
+            "Ariquemes"
+        ]
     }
 
     # =====================================================
@@ -73,77 +135,206 @@ def load_data():
     # =====================================================
     unidade = "Ministério da Saúde"
 
+    # =====================================================
+    # SUBUNIDADES / TERRITÓRIOS
+    # =====================================================
+    # alguns estados possuem mais de um território
+    # =====================================================
     subunidades_map = {
-        "SES - AM": ["Território 1", "Território 2"],
-        "SES - DF": ["Território 3", "Território 4"],
-        "SES - MG": ["Território 5", "Território 6"],
+
+        "SES - AM": [
+            "Território 1",
+            "Território 2"
+        ],
+
+        "SES - DF": [
+            "Território 3",
+            "Território 4"
+        ],
+
+        "SES - MG": [
+            "Território 5",
+            "Território 6"
+        ]
     }
 
     # =====================================================
-    # PERÍODO
+    # PERÍODOS
+    # =====================================================
+    # anos e meses utilizados no mock
     # =====================================================
     anos = [2026, 2025, 2024, 2023]
+
     meses = list(range(1, 13))
 
+    # =====================================================
+    # LISTA FINAL DE REGISTROS
+    # =====================================================
     data = []
 
     # =====================================================
-    # GERAÇÃO DO DATASET
+    # GERAÇÃO DOS DADOS MOCK
     # =====================================================
     for ano in anos:
+
         for mes in meses:
+
             for uf in estados:
 
+                # =========================================
+                # REGIÃO DO ESTADO
+                # =========================================
                 regiao = regioes_map[uf]
 
+                # =========================================
+                # MUNICÍPIOS DO ESTADO
+                # =========================================
                 mun_list = municipios.get(uf)
 
+                # =========================================
+                # SUBUNIDADE
+                # =========================================
                 ses = f"SES - {uf}"
 
+                # =========================================
+                # TERRITÓRIOS
+                # =========================================
                 territorios = subunidades_map.get(
                     ses,
                     ["Território 1"]
                 )
 
+                # =========================================
+                # LOOP DOS TERRITÓRIOS
+                # =========================================
                 for territorio in territorios:
+
+                    # =====================================
+                    # LOOP DOS MUNICÍPIOS
+                    # =====================================
                     for mun in mun_list:
 
+                        # =================================
+                        # BASE ALEATÓRIA
+                        # =================================
+                        # utilizada para gerar indicadores
+                        # correlacionados
+                        # =================================
                         base = np.random.rand()
 
-                        infestacao = np.clip(base + np.random.normal(0, 0.1), 0, 1)
-                        dispersao = np.clip(base + np.random.normal(0, 0.1), 0, 1)
-                        colonizacao = np.clip(base + np.random.normal(0, 0.1), 0, 1)
-                        infeccao_natural = np.clip(base + np.random.normal(0, 0.1), 0, 1)
-                        taxa_visitacao = np.clip(base + np.random.normal(0, 0.1), 0, 1)
+                        # =================================
+                        # INDICADORES EPIDEMIOLÓGICOS
+                        # =================================
 
-                        uds_pesquisadas = np.random.randint(50, 500)
+                        infestacao = np.clip(
+                            base + np.random.normal(0, 0.1),
+                            0,
+                            1
+                        )
+
+                        dispersao = np.clip(
+                            base + np.random.normal(0, 0.1),
+                            0,
+                            1
+                        )
+
+                        colonizacao = np.clip(
+                            base + np.random.normal(0, 0.1),
+                            0,
+                            1
+                        )
+
+                        infeccao_natural = np.clip(
+                            base + np.random.normal(0, 0.1),
+                            0,
+                            1
+                        )
+
+                        taxa_visitacao = np.clip(
+                            base + np.random.normal(0, 0.1),
+                            0,
+                            1
+                        )
+
+                        # =================================
+                        # UDS PESQUISADAS
+                        # =================================
+                        uds_pesquisadas = np.random.randint(
+                            50,
+                            500
+                        )
+
+                        # =================================
+                        # UDS POSITIVAS
+                        # =================================
+                        # proporcional ao índice
+                        # de infestação
+                        # =================================
                         uds_positivas = int(
                             uds_pesquisadas
                             * infestacao
                             * np.random.uniform(0.1, 0.5)
                         )
 
+                        # =================================
+                        # ADICIONA REGISTRO AO DATASET
+                        # =================================
                         data.append({
+
+                            # -----------------------------
+                            # DIMENSÃO TEMPORAL
+                            # -----------------------------
                             "data": f"{ano}-{mes:02d}-01",
+
                             "ano": ano,
+
                             "mes": mes,
+
+                            # -----------------------------
+                            # DIMENSÃO GEOGRÁFICA
+                            # -----------------------------
                             "estado": uf,
+
                             "municipio": mun,
+
                             "regiao": regiao,
 
-                            # organização
+                            # -----------------------------
+                            # ESTRUTURA ORGANIZACIONAL
+                            # -----------------------------
                             "unidade": unidade,
+
                             "subunidade": ses,
+
                             "territorio": territorio,
 
-                            # indicadores
+                            # -----------------------------
+                            # INDICADORES
+                            # -----------------------------
                             "infestacao": infestacao,
+
                             "dispersao": dispersao,
+
                             "colonizacao": colonizacao,
+
                             "infeccao_natural": infeccao_natural,
+
                             "taxa_visitacao": taxa_visitacao,
+
+                            # -----------------------------
+                            # INDICADORES OPERACIONAIS
+                            # -----------------------------
                             "uds_pesquisadas": uds_pesquisadas,
+
                             "uds_positivas": uds_positivas
                         })
 
-    return pd.DataFrame(data)
+    # =====================================================
+    # CONVERSÃO PARA DATAFRAME
+    # =====================================================
+    df = pd.DataFrame(data)
+
+    # =====================================================
+    # RETORNO FINAL
+    # =====================================================
+    return df
