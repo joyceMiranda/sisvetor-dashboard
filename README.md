@@ -12,7 +12,7 @@ Sistema de monitoramento dos indicadores entomológicos da Doença de Chagas, co
 
 ### 📊 Visualização de dados
 
-* Plotly Express
+* Plotly Express (gráficos)
 * Folium (mapas interativos)
 * GeoJSON (limites territoriais)
 
