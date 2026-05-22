@@ -2,30 +2,6 @@
 
 Sistema de monitoramento dos indicadores entomológicos da Doença de Chagas, com visualização territorial, análise temporal e suporte à decisão em saúde pública.
 
----
-
-## 🧱 Arquitetura do Projeto
-
-```
-app.py
-│
-├── components/
-│   ├── filters.py      # Filtros territoriais e organizacionais
-│   ├── maps.py         # Mapa interativo (Folium)
-│   ├── charts.py       # Gráficos (Plotly)
-│   └── kpis.py         # Indicadores resumidos
-│
-├── data/
-│   └── mock_data.py    # Dados simulados
-│
-├── assets/
-│   └── style.css       # Customização visual (UI/UX)
-├── utils/
-│   └── maps_utils.py   # dados geográficos
-```
-
----
-
 ## ⚙️ Stack Tecnológica
 
 ### 🖥️ Interface
@@ -75,7 +51,29 @@ Unidade → Subunidade → Território
 * Infecção Natural
 
 ---
+---
 
+## 🧱 Arquitetura do Projeto
+
+```
+app.py
+│
+├── components/
+│   ├── filters.py      # Filtros territoriais e organizacionais
+│   ├── maps.py         # Mapa interativo (Folium)
+│   ├── charts.py       # Gráficos (Plotly)
+│   └── kpis.py         # Indicadores resumidos
+│
+├── data/
+│   └── mock_data.py    # Dados simulados
+│
+├── assets/
+│   └── style.css       # Customização visual (UI/UX)
+├── utils/
+│   └── maps_utils.py   # dados geográficos
+```
+---
+---
 ## 🚀 Execução
 
 ```bash
