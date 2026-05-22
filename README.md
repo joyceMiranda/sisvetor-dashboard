@@ -2,6 +2,8 @@
 
 Sistema de monitoramento dos indicadores entomológicos da Doença de Chagas, com visualização territorial, análise temporal e suporte à decisão em saúde pública.
 
+---
+
 ## ⚙️ Stack Tecnológica
 
 ### 🖥️ Interface
@@ -51,7 +53,6 @@ Unidade → Subunidade → Território
 * Infecção Natural
 
 ---
----
 
 ## 🧱 Arquitetura do Projeto
 
@@ -73,7 +74,6 @@ app.py
 │   └── maps_utils.py   # dados geográficos
 ```
 ---
----
 ## 🚀 Execução
 
 ```bash
@@ -87,4 +87,3 @@ streamlit run app.py
 🚧 Em desenvolvimento ativo
 📊 Foco em expansão de indicadores e organização SISVETOR
 
----
