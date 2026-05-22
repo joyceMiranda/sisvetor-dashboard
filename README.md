@@ -50,14 +50,14 @@ Nacional → Regional → Estado → Município
 app.py
 │
 ├── components/
-│   ├── filters.py      # Filtros territoriais e organizacionais
-│   ├── maps.py         # Mapa interativo (Folium)
-│   ├── charts.py       # Gráficos (Plotly)
-│   └── kpis.py         # Indicadores resumidos
+│   ├── filters.py      # Filtros
+│   ├── maps.py         # Mapa interativo  
+│   ├── charts.py       # Gráficos  
+│   └── kpis.py         # Indicadores  
 ├── data/
 │   └── mock_data.py    # Dados simulados
 ├── assets/
-│   └── style.css       # Customização visual (UI/UX)
+│   └── style.css       # Customização visual
 ├── utils/
 │   └── maps_utils.py   # dados geográficos
 ```
