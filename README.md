@@ -35,16 +35,6 @@ Nacional → Regional → Estado → Município
 
 ---
 
-### 🏢 Organização SISVETOR
-
-Estrutura institucional:
-
-```
-Unidade → Subunidade → Território
-```
-
----
-
 ### 📊 Indicadores Monitorados
 
 * Infestação
