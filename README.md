@@ -54,10 +54,8 @@ app.py
 │   ├── maps.py         # Mapa interativo (Folium)
 │   ├── charts.py       # Gráficos (Plotly)
 │   └── kpis.py         # Indicadores resumidos
-│
 ├── data/
 │   └── mock_data.py    # Dados simulados
-│
 ├── assets/
 │   └── style.css       # Customização visual (UI/UX)
 ├── utils/
