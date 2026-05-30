@@ -7,6 +7,8 @@ from components.maps import render_map
 from components.charts import render_charts
 from utils.maps_utils import NOME_UF_MAP
 
+from components.tables import render_tables
+
 st.set_page_config(layout="wide")
 
 # =========================================================
@@ -28,7 +30,16 @@ df = load_data()
 # TÍTULO DA PÁGINA
 # =========================================================
 st.title("SISVETOR Chagas — Dashboard de Vigilância Entomológica")
-st.caption("")
+#st.caption("")
+
+st.markdown(
+    """
+    <div class="update-caption">
+        ℹ️ Os dados apresentados neste painel são atualizados diariamente às 03:00 (horário de Brasília).
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 st.subheader("📊 Indicadores")
 
@@ -43,10 +54,12 @@ INDICADORES_MAP = {
 indicadores = st.multiselect(
     "",
     options=INDICADORES_MAP,
-    default=list(INDICADORES_MAP)[:1],
+    default=list(INDICADORES_MAP),
     format_func=INDICADORES_MAP.get,
     label_visibility="collapsed"
 )
+
+
 
 
 # =========================================================
@@ -85,7 +98,7 @@ st.session_state["df_filtered"] = df_filtered
 # =========================================================
 # KPIs
 # =========================================================
-render_kpis(df_filtered)
+#render_kpis(df_filtered)
 
 # =========================================================
 # LAYOUT
@@ -108,4 +121,13 @@ with col_map:
 
 with col_charts:
     render_charts(df_filtered, INDICADORES_MAP, indicadores)
+
+
+st.divider()
+
+render_tables(
+    df_filtered,
+    INDICADORES_MAP,
+    indicadores
+)
 

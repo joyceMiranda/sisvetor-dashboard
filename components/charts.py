@@ -35,21 +35,34 @@ def render_charts(df, INDICADORES_MAP, indicadores):
         labels={
             "mes": "",  
             "value": "",             
-            "label": INDICADORES_MAP.keys()
+            "label": INDICADORES_MAP.keys()        
         }
     )
 
-    # ✅ LEGENDA NO TOPO
+    # Remove o prefixo "variable=" exibido pelo Plotly no tooltip (hover)
+    fig1.for_each_trace(
+        lambda t: t.update(
+            hovertemplate=t.hovertemplate.replace("variable=", "")
+        )
+    )
+
+    
+
     fig1.update_layout(
         height=350,
         legend=dict(
             orientation="h",
-            yanchor="bottom",
-            y=1.02,
+            yanchor="top",
+            y=-0.25,
             xanchor="center",
             x=0.5,
-            title_text=""  # ✅ remove título da legenda
+            title_text=""
+        ),
+        margin=dict(
+            b=80
         )
     )
+
+    fig1.update_yaxes(ticksuffix="%")
 
     st.plotly_chart(fig1, use_container_width=True)

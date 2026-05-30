@@ -87,7 +87,7 @@ def render_map(df, INDICADORES_MAP, indicadores):
                     for indicador in indicadores:
                         label = INDICADORES_MAP[indicador]
                         valor = df_estado[indicador].mean() if not df_estado.empty else 0
-                        tooltip += f"<b>{label}:</b> {valor:.2f}<br>"
+                        tooltip += f"<b>{label}:</b> {valor:.2f}%<br>"
 
                 else:
                     tooltip += "<b><i>*Sem dados para análise</i></b>"

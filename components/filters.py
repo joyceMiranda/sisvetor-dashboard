@@ -7,6 +7,8 @@ def render_filters(df):
     st.sidebar.title("🔎 Filtros")
 
     df = df.copy()
+
+    # Converte a coluna "data" para o tipo datetime, permitindo operações e análises temporais.
     df["data"] = pd.to_datetime(df["data"])
 
     
@@ -21,72 +23,75 @@ def render_filters(df):
         10: "Outubro", 11: "Novembro", 12: "Dezembro"
     }
 
-    
+    """
     # =====================================================
     # MODO DE VISUALIZAÇÃO
     # =====================================================
     with st.sidebar.expander("Escopo da Análise", expanded=True):
         modo = st.radio(
             label="",
-            options=["🌎 Visão Territorial", "🏢 Áreas de Gestão"],
+            options=["🌎 Visão Territorial"],
             index=0,
             label_visibility="collapsed"
         )
+    """
 
-   # =====================================================
+    # =====================================================
     # 🌎 VISÃO TERRITORIAL
     # =====================================================
     visao = "Nacional"
 
-    if modo == "🌎 Visão Territorial":
+    #if modo == "🌎 Visão Territorial":
 
-        with st.sidebar.expander("🌎 Visão Territorial", expanded=True):
+    with st.sidebar.expander("🌎 Visão Territorial", expanded=True):
 
-            visao = st.selectbox(
-                "Abrangência",
-                ["Nacional", "Regional"]
+        visao = st.selectbox(
+            "Abrangência",
+            ["Nacional", "Regional"]
+        )
+
+        if visao == "Regional":
+
+            # =========================
+            # REGIÃO
+            # =========================
+            regiao = st.selectbox(
+                "Região",
+                ["Todos", "Norte", "Nordeste", "Centro-Oeste", "Sudeste", "Sul"]
             )
 
-            if visao == "Regional":
+            if regiao != "Todos":
+                df = df[df["regiao"] == regiao]
 
                 # =========================
-                # REGIÃO
+                # ESTADO (SÓ APARECE SE REGIÃO SELECIONADA)
                 # =========================
-                regiao = st.selectbox(
-                    "Região",
-                    ["Todos", "Norte", "Nordeste", "Centro-Oeste", "Sudeste", "Sul"]
+                estado = st.selectbox(
+                    "Estado",
+                    ["Todos"] + sorted(df["estado"].unique())
                 )
 
-                if regiao != "Todos":
-                    df = df[df["regiao"] == regiao]
+                if estado != "Todos":
+                    df = df[df["estado"] == estado]
 
                     # =========================
-                    # ESTADO (SÓ APARECE SE REGIÃO SELECIONADA)
+                    # MUNICÍPIO
                     # =========================
-                    estado = st.selectbox(
-                        "Estado",
-                        ["Todos"] + sorted(df["estado"].unique())
+                    municipio = st.selectbox(
+                        "Município",
+                        ["Todos"] + sorted(df["municipio"].unique())
                     )
 
-                    if estado != "Todos":
-                        df = df[df["estado"] == estado]
-
-                        # =========================
-                        # MUNICÍPIO
-                        # =========================
-                        municipio = st.selectbox(
-                            "Município",
-                            ["Todos"] + sorted(df["municipio"].unique())
-                        )
-
-                        if municipio != "Todos":
-                            df = df[df["municipio"] == municipio]
-
-                else:
-                    st.info("Selecione uma região para detalhar estados e municípios.")
+                    if municipio != "Todos":
+                        df = df[df["municipio"] == municipio]
 
             else:
-                st.info("Dados agregados do Brasil")
+                st.info("Selecione uma região para detalhar estados e municípios.")
+
+        else:
+            st.info("Dados agregados do Brasil")
+
+    """
                 
     # =====================================================
     # 🏢 ORGANIZAÇÃO SISVETOR
@@ -141,7 +146,7 @@ def render_filters(df):
             else:
                 st.warning("Dados organizacionais não disponíveis.")
 
-
+    """
     # =====================================================
     # PERÍODO
     # =====================================================
@@ -150,21 +155,19 @@ def render_filters(df):
         anos = sorted(df["data"].dt.year.unique(), reverse=True)
         ano = st.selectbox("Ano", anos)
 
-        col1, col2 = st.columns(2)
+        
+        mes_inicio = st.selectbox(
+            "Mês inicial",
+            list(meses_map.values()),
+            index=0
+        )
 
-        with col1:
-            mes_inicio = st.selectbox(
-                "Mês inicial",
-                list(meses_map.values()),
-                index=0
-            )
-
-        with col2:
-            mes_fim = st.selectbox(
-                "Mês final",
-                list(meses_map.values()),
-                index=11
-            )
+    
+        mes_fim = st.selectbox(
+            "Mês final",
+            list(meses_map.values()),
+            index=11
+        )
 
         mes_inicio_num = [k for k, v in meses_map.items() if v == mes_inicio][0]
         mes_fim_num = [k for k, v in meses_map.items() if v == mes_fim][0]
