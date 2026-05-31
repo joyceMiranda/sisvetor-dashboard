@@ -16,7 +16,7 @@ def render_tables(df, INDICADORES_MAP, indicadores):
     else:
         agrupamento = ["municipio"]
         titulo = "📋 Dados Estratificados por Município"
-        estado_selecionado = st.session_state["estado"]
+        estado_selecionado = st.session_state["nm_estado"] + " - " + st.session_state["estado"] 
 
     # =====================================================
     # CABEÇALHO
@@ -95,14 +95,6 @@ def render_tables(df, INDICADORES_MAP, indicadores):
                 st.metric(nome_indicador,
                           f"{taxa_indicador:.2f}%")
 
-            st.download_button(
-                "⬇️ Exportar CSV",
-                csv,
-                file_name=f"{indicador}.csv",
-                mime="text/csv",
-                use_container_width=True,
-                key=f"download_{indicador}"
-            )
 
             html_table = tabela.to_html(
                 index=False,
@@ -111,3 +103,12 @@ def render_tables(df, INDICADORES_MAP, indicadores):
             )
 
             st.markdown(html_table, unsafe_allow_html=True)
+
+            st.download_button(
+                "⬇️ Exportar CSV",
+                csv,
+                file_name=f"{indicador}.csv",
+                mime="text/csv",
+                use_container_width=True,
+                key=f"download_{indicador}"
+            )

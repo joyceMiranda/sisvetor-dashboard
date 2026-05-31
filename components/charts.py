@@ -17,7 +17,13 @@ def render_charts(df, INDICADORES_MAP, indicadores):
     # =========================================================
     # EVOLUÇÃO MENSAL
     # =========================================================
-    st.subheader("📈 Evolução Mensal")
+    st.subheader("📈 Evolução Temporal")
+
+    if st.session_state.get("estado", "Todos") != "Todos":
+        estado_selecionado = st.session_state["nm_estado"] + " - " + st.session_state["estado"] 
+        if estado_selecionado:
+            st.info(f"Estado selecionado: {estado_selecionado}")
+
 
     df_month = df.groupby("mes", as_index=False)[indicadores].mean()
 
@@ -49,7 +55,7 @@ def render_charts(df, INDICADORES_MAP, indicadores):
     
 
     fig1.update_layout(
-        height=350,
+        height=450,
         legend=dict(
             orientation="h",
             yanchor="top",

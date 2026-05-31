@@ -16,7 +16,14 @@ def render_map(df, INDICADORES_MAP, indicadores):
     # BOTÃO VOLTAR (SÓ APARECE QUANDO ESTIVER EM UM ESTADO)
     # =========================================================
     if st.session_state.get("estado", "Todos") != "Todos":
+        
+        estado_selecionado = st.session_state["nm_estado"] + " - " + st.session_state["estado"] 
+        if estado_selecionado:
+            st.info(f"Estado selecionado: {estado_selecionado}")
+
         col_back = st.columns([1])[0]
+        
+        
 
         with col_back:
             if st.button("⬅️ Voltar para o Brasil"):
@@ -51,7 +58,7 @@ def render_map(df, INDICADORES_MAP, indicadores):
 
         m = folium.Map(
             location=[lat, lon],
-            zoom_start=5.2,
+            zoom_start=6.0,
             tiles="cartodbpositron",
             zoom_control=True
         )
@@ -297,7 +304,7 @@ def render_map(df, INDICADORES_MAP, indicadores):
     map_data = st_folium(
         m,
         width=None,
-        height=450,
+        height=550,
         returned_objects=["last_active_drawing"]
     )
 

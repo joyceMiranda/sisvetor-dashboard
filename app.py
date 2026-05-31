@@ -67,6 +67,8 @@ indicadores = st.multiselect(
 # =========================================================
 if "estado" not in st.session_state:
     st.session_state["estado"] = "Todos"
+    st.session_state["nm_estado"] = ""
+
 
 # =========================================================
 # FILTROS
@@ -103,24 +105,26 @@ st.session_state["df_filtered"] = df_filtered
 # =========================================================
 # LAYOUT
 # =========================================================
-col_map, col_charts = st.columns([5, 5])
+#col_map, col_charts = st.columns([5, 5])
 
-with col_map:
-    map_data = render_map(df_filtered, INDICADORES_MAP, indicadores)
+#with col_map:
+map_data = render_map(df_filtered, INDICADORES_MAP, indicadores)
 
-    if map_data and map_data.get("last_active_drawing"):
-        props = map_data["last_active_drawing"].get("properties", {})
+if map_data and map_data.get("last_active_drawing"):
+    props = map_data["last_active_drawing"].get("properties", {})
 
-        nome = props.get("name")
+    nome = props.get("name")
 
-        estado = NOME_UF_MAP.get(nome)
+    estado = NOME_UF_MAP.get(nome)
 
-        if estado:
-            st.session_state["estado"] = estado
-            st.rerun()
+    if estado:
+        st.session_state["estado"] = estado
+        st.session_state["nm_estado"] = nome
+        st.rerun()
 
-with col_charts:
-    render_charts(df_filtered, INDICADORES_MAP, indicadores)
+
+#with col_charts:
+render_charts(df_filtered, INDICADORES_MAP, indicadores)
 
 
 st.divider()
