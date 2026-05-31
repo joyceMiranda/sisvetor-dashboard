@@ -3,6 +3,7 @@ import folium
 from streamlit_folium import st_folium
 import requests
 from utils.maps_utils import ESTADO_COORDS, UF_NOME_MAP, NOME_UF_MAP, UF_IBGE_PREFIX
+from shapely.geometry import shape
 
 
 # =========================================================
@@ -10,26 +11,9 @@ from utils.maps_utils import ESTADO_COORDS, UF_NOME_MAP, NOME_UF_MAP, UF_IBGE_PR
 # =========================================================
 def render_map(df, INDICADORES_MAP, indicadores):
 
-    st.subheader("🗺️ Monitoramento Nacional")
+    st.subheader("🗺️ Monitoramento Territorial")
 
-    # =========================================================
-    # BOTÃO VOLTAR (SÓ APARECE QUANDO ESTIVER EM UM ESTADO)
-    # =========================================================
-    if st.session_state.get("estado", "Todos") != "Todos":
-        
-        estado_selecionado = st.session_state["nm_estado"] + " - " + st.session_state["estado"] 
-        if estado_selecionado:
-            st.info(f"Estado selecionado: {estado_selecionado}")
-
-        col_back = st.columns([1])[0]
-        
-        
-
-        with col_back:
-            if st.button("⬅️ Voltar para o Brasil"):
-                st.session_state["estado"] = "Todos"
-                st.rerun()
-
+   
     # =========================================================
     # GEOJSON DOS ESTADOS
     # é um jeito de guardar informações de localização e mapas usando texto JSON.
@@ -43,9 +27,48 @@ def render_map(df, INDICADORES_MAP, indicadores):
 
     estado_foco = st.session_state.get("estado", "Todos")
 
+    municipio_foco = st.session_state.get("municipio", "Todos")
+
+    estado_selecionado = ""
+
+    # =========================================================
+    # BOTÃO VOLTAR
+    # =========================================================
+
+    if municipio_foco != "Todos" and estado_foco != "Todos":
+
+        st.info(
+            f"Município selecionado: {municipio_foco} ({estado_foco})"
+        )
+
+        if st.button("⬅️ Voltar para o Estado"):
+            st.session_state["municipio"] = "Todos"
+            st.session_state["municipio_ibge"] = None
+            st.rerun()
+
+    elif estado_foco != "Todos":
+
+        estado_selecionado = (
+            st.session_state["nm_estado"]
+            + " ("
+            + st.session_state["estado"]
+            + ")"
+        )
+
+        
+        st.info(
+            f"Estado selecionado: {estado_selecionado}"
+        )
+
+        if st.button("⬅️ Voltar para o Brasil"):
+            st.session_state["estado"] = "Todos"
+            st.rerun()
+
+
     # =========================================================
     # MAPA BASE (BRASIL CENTRALIZADO)
     # =========================================================
+    #BRASIL
     if estado_foco == "Todos":
         m = folium.Map(
             location=[-14.5, -52],
@@ -53,7 +76,8 @@ def render_map(df, INDICADORES_MAP, indicadores):
             tiles="cartodbpositron",
             zoom_control=True
         )
-    else:
+    #ESTADO
+    elif municipio_foco == "Todos":
         lat, lon = ESTADO_COORDS[estado_foco]
 
         m = folium.Map(
@@ -62,6 +86,109 @@ def render_map(df, INDICADORES_MAP, indicadores):
             tiles="cartodbpositron",
             zoom_control=True
         )
+    #MUNICIPIO
+    else:
+
+        municipios_url = (
+            "https://raw.githubusercontent.com/"
+            "tbrugz/geodata-br/master/geojson/geojs-100-mun.json"
+        )
+
+        response = requests.get(municipios_url)
+
+        municipios_geo = response.json()
+
+        municipio_geo = {
+            "type": "FeatureCollection",
+            "features": [
+                f
+                for f in municipios_geo["features"]
+                if f["properties"]["id"]
+                == st.session_state["municipio_ibge"]
+            ]
+        }
+
+        if not municipio_geo["features"]:
+            st.error(
+                f"Município IBGE {st.session_state['municipio_ibge']} não encontrado."
+            )
+            return None
+
+        feature = municipio_geo["features"][0]
+
+        #TOOLTIP MUNICÍPIO
+
+        df_municipio = df[
+            (df["estado"] == estado_foco)
+            & (df["municipio"] == municipio_foco)
+        ]
+
+        tooltip = f"<b>Município:</b> {municipio_foco} ({estado_foco})<br>"
+
+        if df_municipio['uds_pesquisadas'].sum() > 0:
+
+            tooltip += (
+                f"<b>UDs Pesquisadas:</b> "
+                f"{df_municipio['uds_pesquisadas'].sum()}<br>"
+            )
+
+            tooltip += (
+                f"<b>UDs Positivas:</b> "
+                f"{df_municipio['uds_positivas'].sum()}<br>"
+            )
+
+            for indicador in indicadores:
+                label = INDICADORES_MAP[indicador]
+                valor = df_municipio[indicador].mean()
+                tooltip += f"<b>{label}:</b> {valor:.2f}%<br>"
+
+        else:
+            tooltip += "<b><i>*Sem dados para análise</i></b>"
+
+        feature["properties"]["tooltip"] = tooltip
+
+        geom = shape(feature["geometry"])
+        centroid = geom.centroid
+
+        m = folium.Map(
+            location=[centroid.y, centroid.x],
+            zoom_start=11,
+            tiles="cartodbpositron"
+        )
+    
+        minx, miny, maxx, maxy = geom.bounds
+
+        folium.GeoJson(
+            municipio_geo,
+
+            style_function=lambda x: {
+                "fillColor": "#ff6b6b",
+                "color": "#003366",
+                "weight": 4,
+                "fillOpacity": 0.45
+            },
+
+            tooltip=folium.GeoJsonTooltip(
+                fields=["tooltip"],
+                aliases=[""],
+                sticky=True,
+                labels=False,
+                localize=True,
+                style="""
+                    background-color: white;
+                    border: 1px solid #666;
+                    border-radius: 4px;
+                    padding: 8px;
+                    font-size: 18px;
+                """
+            )
+
+        ).add_to(m)
+
+        m.fit_bounds([
+            [miny, minx],
+            [maxy, maxx]
+        ])
 
     # trava navegação fora do país (efeito dashboard)
     m.options["maxBounds"] = [
@@ -143,7 +270,7 @@ def render_map(df, INDICADORES_MAP, indicadores):
     # =========================================================
     # MODO ESTADO (SO UM ESTADO)
     # =========================================================
-    else:
+    elif municipio_foco == "Todos":
 
         estado_nome = UF_NOME_MAP[estado_foco]
 
@@ -232,7 +359,7 @@ def render_map(df, INDICADORES_MAP, indicadores):
                         else:
                             valor = 0
 
-                        tooltip += f"<b>{label}:</b> {valor:.2f}<br>"
+                        tooltip += f"<b>{label}:</b> {valor:.2f}%<br>"
 
                 else:
                     tooltip += "<b><i>*Sem dados para análise</i></b>"
@@ -296,6 +423,7 @@ def render_map(df, INDICADORES_MAP, indicadores):
                 )
 
             ).add_to(m)
+        
 
     # =========================================================
     # RENDER STREAMLIT

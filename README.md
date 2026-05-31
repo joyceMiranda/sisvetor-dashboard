@@ -12,9 +12,9 @@ Sistema de monitoramento dos indicadores entomológicos da Doença de Chagas, co
 
 ### 📊 Visualização de dados
 
-* Plotly Express (gráficos)
 * Folium (mapas interativos)
 * GeoJSON (limites territoriais)
+* Plotly Express (gráficos)
 
 ### 🗂️ Processamento de dados
 
@@ -41,6 +41,7 @@ Nacional → Regional → Estado → Município
 * Dispersão
 * Colonização 
 * Infecção Natural
+* Taxa de Visitação
 
 ---
 
@@ -53,7 +54,6 @@ app.py
 │   ├── filters.py      # Filtros
 │   ├── maps.py         # Mapa interativo  
 │   ├── charts.py       # Gráficos  
-│   └── kpis.py         # Indicadores  
 ├── data/
 │   └── mock_data.py    # Dados simulados
 ├── assets/
@@ -73,5 +73,5 @@ streamlit run app.py
 ## 📌 Status do Projeto
 
 🚧 Em desenvolvimento ativo
-📊 Foco em expansão de indicadores e organização SISVETOR
+📊 Foco em expansão de indicadores e adequação de interface
 

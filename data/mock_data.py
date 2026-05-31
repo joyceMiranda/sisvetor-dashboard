@@ -28,6 +28,34 @@ def load_data():
         "RO": ["Porto Velho", "Ji-Paraná", "Ariquemes"]
     }
 
+    municipios_ibge = {
+        "Manaus": "1302603",
+        "Parintins": "1303403",
+        "Itacoatiara": "1301902",
+
+        "Salvador": "2927408",
+        "Feira de Santana": "2910800",
+        "Vitória da Conquista": "2933307",
+
+        "Brasília": "5300108",
+
+        "Goiânia": "5208707",
+        "Anápolis": "5201108",
+        "Aparecida de Goiânia": "5201405",
+
+        "Belo Horizonte": "3106200",
+        "Uberlândia": "3170206",
+        "Contagem": "3118601",
+
+        "Belém": "1501402",
+        "Santarém": "1506807",
+        "Marabá": "1504208",
+
+        "Porto Velho": "1100205",
+        "Ji-Paraná": "1100122",
+        "Ariquemes": "1100023"
+    }
+
     subunidades_map = {
         "SES - AM": ["Território 1", "Território 2"],
         "SES - DF": ["Território 3", "Território 4"],
@@ -68,6 +96,7 @@ def load_data():
                             "mes": mes,
                             "estado": uf,
                             "municipio": mun,
+                            "cod_ibge": municipios_ibge[mun],
                             "regiao": regiao,
                             "unidade": "Ministério da Saúde",
                             "subunidade": ses,

@@ -9,22 +9,51 @@ def render_tables(df, INDICADORES_MAP, indicadores):
     # =====================================================
     # DEFINE NÍVEL DE AGREGAÇÃO
     # =====================================================
-    if st.session_state.get("estado", "Todos") == "Todos":
-        agrupamento = ["estado"]
-        titulo = "📋 Dados Estratificados por Estado"
-        estado_selecionado = None
-    else:
+    titulo = "📋 Dados Estratificados"
+
+    estado_foco = st.session_state.get("estado", "Todos")
+    municipio_foco = st.session_state.get("municipio", "Todos")
+
+    # =====================================================
+    # CONTEXTO TERRITORIAL
+    # =====================================================
+    agrupamento = ["estado"]
+
+    if estado_foco != "Todos":
+
         agrupamento = ["municipio"]
-        titulo = "📋 Dados Estratificados por Município"
-        estado_selecionado = st.session_state["nm_estado"] + " - " + st.session_state["estado"] 
+
+        estado_selecionado = (
+            f"{st.session_state['nm_estado']} ({estado_foco})"
+        )
+
+        if municipio_foco != "Todos":
+            municipio_selecionado = municipio_foco
+        else:
+            municipio_selecionado = None
+
+    else:
+        estado_selecionado = None
+        municipio_selecionado = None
 
     # =====================================================
     # CABEÇALHO
     # =====================================================
     st.subheader(titulo)
 
-    if estado_selecionado:
-        st.info(f"Estado selecionado: {estado_selecionado}")
+    if municipio_selecionado:
+
+        st.info(
+            f"Município selecionado: "
+            f"{municipio_selecionado} ({estado_foco})"
+        )
+
+    elif estado_selecionado:
+
+        st.info(
+            f"Estado selecionado: "
+            f"{estado_selecionado}"
+        )
 
     # =====================================================
     # FILTRA INDICADORES VÁLIDOS

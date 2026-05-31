@@ -19,11 +19,27 @@ def render_charts(df, INDICADORES_MAP, indicadores):
     # =========================================================
     st.subheader("📈 Evolução Temporal")
 
-    if st.session_state.get("estado", "Todos") != "Todos":
-        estado_selecionado = st.session_state["nm_estado"] + " - " + st.session_state["estado"] 
-        if estado_selecionado:
-            st.info(f"Estado selecionado: {estado_selecionado}")
+    estado_foco = st.session_state.get("estado", "Todos")
+    municipio_foco = st.session_state.get("municipio", "Todos")
 
+    if municipio_foco != "Todos":
+
+        st.info(
+            f"Município selecionado: "
+            f"{municipio_foco} ({estado_foco})"
+        )
+
+    elif estado_foco != "Todos":
+
+        estado_selecionado = (
+            f"{st.session_state['nm_estado']} ({estado_foco})"
+        )
+
+        st.info(
+            f"Estado selecionado: {estado_selecionado}"
+        )
+
+    #>>>>
 
     df_month = df.groupby("mes", as_index=False)[indicadores].mean()
 
@@ -62,7 +78,8 @@ def render_charts(df, INDICADORES_MAP, indicadores):
             y=-0.25,
             xanchor="center",
             x=0.5,
-            title_text=""
+            title_text="",
+            font=dict(size=16)
         ),
         margin=dict(
             b=80
@@ -70,5 +87,14 @@ def render_charts(df, INDICADORES_MAP, indicadores):
     )
 
     fig1.update_yaxes(ticksuffix="%")
+
+    fig1.update_xaxes(
+        tickfont=dict(size=16)
+    )
+
+    fig1.update_yaxes(
+        ticksuffix="%",
+        tickfont=dict(size=16)
+)
 
     st.plotly_chart(fig1, use_container_width=True)
