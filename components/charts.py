@@ -97,4 +97,4 @@ def render_charts(df, INDICADORES_MAP, indicadores):
         tickfont=dict(size=16)
 )
 
-    st.plotly_chart(fig1, use_container_width=True)
+    st.plotly_chart(fig1, width="stretch")

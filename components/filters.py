@@ -43,7 +43,7 @@ def render_filters(df):
 
     #if modo == "🌎 Visão Territorial":
 
-    with st.sidebar.expander("🌎  Visão ", expanded=True):
+    with st.sidebar.expander("🌎  Visão Territorial ", expanded=True):
 
         visao = st.selectbox(
             "Abrangência",

@@ -11,7 +11,7 @@ from shapely.geometry import shape
 # =========================================================
 def render_map(df, INDICADORES_MAP, indicadores):
 
-    st.subheader("🗺️ Monitoramento Territorial")
+    st.subheader("🗺️ Monitoramento Geográfico")
 
    
     # =========================================================

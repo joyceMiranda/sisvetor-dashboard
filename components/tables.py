@@ -138,6 +138,6 @@ def render_tables(df, INDICADORES_MAP, indicadores):
                 csv,
                 file_name=f"{indicador}.csv",
                 mime="text/csv",
-                use_container_width=True,
+                width="stretch",
                 key=f"download_{indicador}"
             )

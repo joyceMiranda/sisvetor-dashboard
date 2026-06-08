@@ -2,7 +2,6 @@ import streamlit as st
 from data.mock_data import load_data
 
 from components.filters import render_filters
-from components.kpis import render_kpis
 from components.maps import render_map
 from components.charts import render_charts
 from utils.maps_utils import NOME_UF_MAP
@@ -35,7 +34,7 @@ st.title("SISVETOR Chagas — Dashboard de Vigilância Entomológica")
 st.markdown(
     """
     <div class="update-caption">
-        ℹ️ Os dados apresentados neste painel são atualizados diariamente às 03:00 (horário de Brasília).
+        ℹ️ Os dados apresentados neste painel são atualizados diariamente às 03:00 (horário de Brasília)
     </div>
     """,
     unsafe_allow_html=True
@@ -52,7 +51,7 @@ INDICADORES_MAP = {
 }
 
 indicadores = st.multiselect(
-    "",
+    label="📊 Indicadores",
     options=INDICADORES_MAP,
     default=list(INDICADORES_MAP),
     format_func=INDICADORES_MAP.get,
