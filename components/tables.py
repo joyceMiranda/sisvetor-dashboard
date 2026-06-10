@@ -1,5 +1,76 @@
 import streamlit as st
 import pandas as pd
+from utils.maps_utils import COLUNAS_TABLES_KPI
+ 
+# =====================================================
+# CONFIGURAÇÃO DOS INDICADORES
+# =====================================================
+INDICADORES_CONFIG = {
+    "infestacao": {
+        "formula": "IND = (UDs positivas / UDs pesquisadas) × 100",
+        "colunas": [
+            "uds_pesquisadas",
+            "uds_positivas"
+        ],
+        "agregacoes": {
+            "uds_pesquisadas": "sum",
+            "uds_positivas": "sum",
+            "infestacao": "mean"
+        }
+    },
+
+    "dispersao": {
+        "formula": "IND = (Localidades positivas / Localidades pesquisadas) × 100",
+        "colunas": [
+            "localidades_pesquisadas",
+            "localidades_positivas"
+        ],
+        "agregacoes": {
+            "localidades_pesquisadas": "sum",
+            "localidades_positivas": "sum",
+            "dispersao": "mean"
+        }
+    },
+
+    "colonizacao": {
+        "formula": "IND = (UDs com presença de ninfas / UDs positivas) × 100",
+        "colunas": [
+            "uds_positivas",
+            "uds_com_ninfas"
+        ],
+        "agregacoes": {
+            "uds_positivas": "sum",
+            "uds_com_ninfas": "sum",
+            "colonizacao": "mean"
+        }
+    },
+
+    "taxa_visitacao": {
+        "formula": "IND = (UDs apenas adultos / UDs positivas) × 100",
+        "colunas": [
+            "uds_positivas",
+            "uds_apenas_adultos"
+        ],
+        "agregacoes": {
+            "uds_positivas": "sum",
+            "uds_apenas_adultos": "sum",
+            "taxa_visitacao": "mean"
+        }
+    },
+
+    "infeccao_natural": {
+        "formula": "IND = (Triatomíneos infectados / Triatomíneos examinados) × 100",
+        "colunas": [
+            "triatomineos_examinados",
+            "triatomineos_infectados"
+        ],
+        "agregacoes": {
+            "triatomineos_examinados": "sum",
+            "triatomineos_infectados": "sum",
+            "infeccao_natural": "mean"
+        }
+    }
+}
 
 
 def render_tables(df, INDICADORES_MAP, indicadores):
@@ -19,22 +90,20 @@ def render_tables(df, INDICADORES_MAP, indicadores):
     # =====================================================
     agrupamento = ["estado"]
 
-    if estado_foco != "Todos":
+    estado_selecionado = None
+    municipio_selecionado = None
 
-        agrupamento = ["municipio"]
+    if estado_foco != "Todos":
 
         estado_selecionado = (
             f"{st.session_state['nm_estado']} ({estado_foco})"
         )
 
-        if municipio_foco != "Todos":
-            municipio_selecionado = municipio_foco
-        else:
-            municipio_selecionado = None
+        # mantém Estado e Município
+        agrupamento = ["estado", "municipio"]
 
-    else:
-        estado_selecionado = None
-        municipio_selecionado = None
+        if municipio_foco != "Todos":
+            municipio_selecionado = municipio_foco  
 
     # =====================================================
     # CABEÇALHO
@@ -59,7 +128,8 @@ def render_tables(df, INDICADORES_MAP, indicadores):
     # FILTRA INDICADORES VÁLIDOS
     # =====================================================
     indicadores_validos = [
-        i for i in indicadores if i in df_table.columns
+        i for i in indicadores
+        if i in df_table.columns
     ]
 
     if not indicadores_validos:
@@ -71,59 +141,104 @@ def render_tables(df, INDICADORES_MAP, indicadores):
     # =====================================================
     for indicador in indicadores_validos:
 
-        agregacoes = {
-            "uds_pesquisadas": "sum",
-            "uds_positivas": "sum",
-            indicador: "mean"
-        }
+        config = INDICADORES_CONFIG[indicador]
 
+        # =====================================================
+        # AGREGAÇÃO
+        # =====================================================
         tabela = (
             df_table
             .groupby(agrupamento, as_index=False)
-            .agg(agregacoes)
+            .agg(config["agregacoes"])
         )
 
         nome_indicador = INDICADORES_MAP[indicador]
 
-        tabela.rename(columns={
-            "estado": "Estado",
-            "municipio": "Município",
-            "uds_pesquisadas": "UDs Pesquisadas",
-            "uds_positivas": "UDs Positivas",
+        
+
+        # =====================================================
+        # RENOMEIA COLUNAS
+        # =====================================================
+        rename_cols = {
+            "estado": COLUNAS_TABLES_KPI["estado"],
+            "municipio": COLUNAS_TABLES_KPI["municipio"],
             indicador: nome_indicador
-        }, inplace=True)
+        }
+
+        for col in config["colunas"]:
+            rename_cols[col] = COLUNAS_TABLES_KPI.get(
+                col,
+                col.replace("_", " ").title()
+            )
+
+        tabela.rename(
+            columns=rename_cols,
+            inplace=True
+        )
 
         # =====================================================
         # KPIs DINÂMICOS
         # =====================================================
-        total_uds_pesquisadas = tabela["UDs Pesquisadas"].sum()
-        total_uds_positivas = tabela["UDs Positivas"].sum()
+        col1 = config["colunas"][0]
+        col2 = config["colunas"][1]
+
+        label1 = COLUNAS_TABLES_KPI[col1]
+        label2 = COLUNAS_TABLES_KPI[col2]
+
+        total_campo1 = tabela[label1].sum()
+        total_campo2 = tabela[label2].sum()
+
         taxa_indicador = tabela[nome_indicador].mean()
 
-        # formatação
-        tabela[nome_indicador] = tabela[nome_indicador].round(2).map(lambda x: f"{x:.2f}%")
+        # =====================================================
+        # FORMATAÇÃO
+        # =====================================================
+        tabela[nome_indicador] = (
+            tabela[nome_indicador]
+            .round(2)
+            .map(lambda x: f"{x:.2f}%")
+        )
 
-        csv = tabela.to_csv(index=False).encode("utf-8-sig")
+        csv = tabela.to_csv(
+            index=False
+        ).encode("utf-8-sig")
 
         # =====================================================
         # EXPANDER
         # =====================================================
-        with st.expander(f"📊 {nome_indicador}", expanded=True):
+        with st.expander(
+            f"📊 {nome_indicador}",
+            expanded=True
+        ):
+            
+
 
             kpi1, kpi2, kpi3 = st.columns(3)
 
             with kpi1:
-                st.metric("UDs Pesquisadas",
-                          f"{total_uds_pesquisadas:,.0f}".replace(",", "."))
+                st.metric(
+                    label1,
+                    f"{total_campo1:,.0f}".replace(",", ".")
+                )
 
             with kpi2:
-                st.metric("UDs Positivas",
-                          f"{total_uds_positivas:,.0f}".replace(",", "."))
+                st.metric(
+                    label2,
+                    f"{total_campo2:,.0f}".replace(",", ".")
+                )
 
             with kpi3:
-                st.metric(nome_indicador,
-                          f"{taxa_indicador:.2f}%")
-
+                st.metric(
+                    nome_indicador,
+                    f"{taxa_indicador:.2f}%"
+                )
+            
+            if st.button(
+                "ℹ️ Fórmula",
+                key=f"info_{indicador}",
+                width="stretch",
+                help="Visualizar Fórmula"):
+                    mostrar_formula(indicador, nome_indicador)
 
             html_table = tabela.to_html(
                 index=False,
@@ -131,7 +246,10 @@ def render_tables(df, INDICADORES_MAP, indicadores):
                 border=0
             )
 
-            st.markdown(html_table, unsafe_allow_html=True)
+            st.markdown(
+                html_table,
+                unsafe_allow_html=True
+            )
 
             st.download_button(
                 "⬇️ Exportar CSV",
@@ -139,5 +257,22 @@ def render_tables(df, INDICADORES_MAP, indicadores):
                 file_name=f"{indicador}.csv",
                 mime="text/csv",
                 width="stretch",
+                help="Fazer Download",
                 key=f"download_{indicador}"
             )
+
+@st.dialog("Fórmula do Indicador", width="large")
+def mostrar_formula(indicador, nome_indicador):
+
+    config = INDICADORES_CONFIG[indicador]
+
+    st.markdown(f"**{nome_indicador}**")
+
+    st.code(config["formula"])
+
+    '''
+    st.markdown("### Variáveis utilizadas")
+
+    for coluna in config["colunas"]:
+        st.write(f"• {COLUNAS_TABLES_KPI[coluna]}")
+    '''

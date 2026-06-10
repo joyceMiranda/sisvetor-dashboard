@@ -82,3 +82,37 @@ UF_IBGE_PREFIX = {
 }
 
 
+# =====================================================
+# NOMES AMIGÁVEIS DAS COLUNAS
+# =====================================================
+COLUNAS_TABLES_KPI = {
+
+    # Territorial
+    "estado": "Estado",
+    "municipio": "Município",
+
+    # UDs
+    "uds_pesquisadas": "UDs Pesquisadas",
+    "uds_positivas": "UDs Positivas",
+    "uds_com_ninfas": "UDs com Presença de Ninfas",
+    "uds_apenas_adultos": "UDs com Presença Apenas de Adultos",
+
+    # Localidades
+    "localidades_pesquisadas": "Localidades Pesquisadas",
+    "localidades_positivas": "Localidades Positivas",
+
+    # Triatomíneos
+    "triatomineos_examinados": "Triatomíneos Examinados",
+    "triatomineos_infectados": "Triatomíneos Infectados",
+
+    # Indicadores
+    "infestacao": "Índice (%)",
+    "dispersao": "Índice (%)",
+    "colonizacao": "Índice (%)",
+    "taxa_visitacao": "Índice (%)",
+    "infeccao_natural": "Índice (%)"
+}
+
+
+
+
