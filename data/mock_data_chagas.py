@@ -18,7 +18,7 @@ def load_data_chagas():
 
     # Define uma semente fixa para que os dados
     # gerados sejam sempre os mesmos em cada execução.
-    np.random.seed(42)
+    np.random.seed(14)
 
     # ==========================================================
     # ESTADOS CONTEMPLADOS NO MOCK

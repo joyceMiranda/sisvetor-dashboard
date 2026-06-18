@@ -62,7 +62,11 @@ def render_map(df, INDICADORES_MAP, indicadores):
         )
 
         if st.button("⬅️ Voltar para o Brasil"):
+            st.session_state["visao"] = "Nacional"
+            st.session_state["regiao"] = "Todos"
             st.session_state["estado"] = "Todos"
+            st.session_state["municipio"] = "Todos"
+            st.session_state["municipio_ibge"] = None
             st.rerun()
 
 

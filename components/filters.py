@@ -13,22 +13,6 @@ def render_filters(df):
     df["data"] = pd.to_datetime(df["data"])
 
 
-    # =====================================================
-    # INICIALIZAÇÃO DE FILTROS
-    # =====================================================
-    if "estado" not in st.session_state:
-        st.session_state["estado"] = "Todos"
-
-    if "municipio" not in st.session_state:
-        st.session_state["municipio"] = "Todos"
-
-    if "municipio_ibge" not in st.session_state:
-        st.session_state["municipio_ibge"] = None
-
-    if "visao_anterior" not in st.session_state:
-        st.session_state["visao_anterior"] = "Nacional"
-
-    
 
     # =====================================================
     # MAPA DE MESES
@@ -66,40 +50,46 @@ def render_filters(df):
         )
 
     # =====================================================
-    # 🌎 VISÃO TERRITORIAL
+    # 🌎 ABRANGÊNCIA TERRITORIAL
     # =====================================================
     visao = "Nacional"
 
-    #if modo == "🌎 Visão Territorial":
+    with st.sidebar.expander("🌎  Abrangência Territorial ", expanded=True):
 
-    with st.sidebar.expander("🌎  Visão Territorial ", expanded=True):
+        opcoes_visao = ["Nacional", "Regional"]
 
         visao = st.selectbox(
-            "Abrangência",
-            ["Nacional", "Regional"]
+            "Visão",
+            opcoes_visao,
+            index=opcoes_visao.index(
+            st.session_state["visao"]
+            )
         )
-
-        if (
-            visao == "Nacional"
-            and st.session_state["visao_anterior"] == "Regional"
-        ):
-            st.session_state["estado"] = "Todos"
-            st.session_state["nm_estado"] = ""
-            st.session_state["municipio"] = "Todos"
-            st.session_state["municipio_ibge"] = None
-
-
-        st.session_state["visao_anterior"] = visao
+    
+        st.session_state["visao"] = visao
 
         if visao == "Regional":
 
             # =========================
             # REGIÃO
             # =========================
+            opcoes_regiao = [
+                "Todos",
+                "Norte",
+                "Nordeste",
+                "Centro-Oeste",
+                "Sudeste",
+                "Sul"
+            ]
+           
             regiao = st.selectbox(
-                "Região",
-                ["Todos", "Norte", "Nordeste", "Centro-Oeste", "Sudeste", "Sul"]
-            )
+                    "Região",
+                    opcoes_regiao,
+                    index=opcoes_regiao.index(st.session_state["regiao"])
+                )
+            
+            st.session_state["regiao"] = regiao
+
 
             if regiao != "Todos":
                 df = df[df["regiao"] == regiao]
@@ -107,9 +97,16 @@ def render_filters(df):
                 # =========================
                 # ESTADO (SÓ APARECE SE REGIÃO SELECIONADA)
                 # =========================
+                opcoes_estado = ["Todos"] + sorted(df["estado"].unique())
+
                 estado = st.selectbox(
                     "Estado",
-                    ["Todos"] + sorted(df["estado"].unique())
+                    opcoes_estado,
+                    index=(
+                        opcoes_estado.index(st.session_state["estado"])
+                        if st.session_state["estado"] in opcoes_estado
+                        else 0
+                    )
                 )
 
                 st.session_state["estado"] = estado
@@ -121,9 +118,16 @@ def render_filters(df):
                     # =========================
                     # MUNICÍPIO
                     # =========================
+                    opcoes_municipio = ["Todos"] + sorted(df["municipio"].unique())
+
                     municipio = st.selectbox(
                         "Município",
-                        ["Todos"] + sorted(df["municipio"].unique())
+                        opcoes_municipio,
+                        index=(
+                            opcoes_municipio.index(st.session_state["municipio"])
+                            if st.session_state["municipio"] in opcoes_municipio
+                            else 0
+                        )
                     )
 
                     st.session_state["municipio"] = municipio

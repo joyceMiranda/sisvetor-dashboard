@@ -23,6 +23,24 @@ def load_css(file_path):
 
 load_css("assets/styles.css")
 
+# =====================================================
+# INICIALIZAÇÃO 
+# =====================================================
+if "estado" not in st.session_state:
+    st.session_state["estado"] = "Todos"
+
+if "municipio" not in st.session_state:
+    st.session_state["municipio"] = "Todos"
+
+if "municipio_ibge" not in st.session_state:
+    st.session_state["municipio_ibge"] = None
+
+if "visao" not in st.session_state:
+    st.session_state["visao"] = "Nacional"
+
+if "regiao" not in st.session_state:
+    st.session_state["regiao"] = "Todos"
+
 
 # =========================================================
 # VETOR PADRÃO
@@ -40,10 +58,12 @@ else:
 
 #st.write(df)
 
+
 # =========================================================
 # FILTROS
 # =========================================================
 df_filtered, visao, vetor = render_filters(df)
+
 
 # =========================================================
 # TROCA DE VETOR
@@ -136,6 +156,8 @@ if df_filtered is None or df_filtered.empty:
     st.warning("Nenhum dado encontrado para o(s) filtro(s) selecionado(s).")
     if  st.session_state["estado"] != "Todos":
         if st.button("⬅️ Voltar para o Brasil"):
+            st.session_state["visao"] = "Nacional"
+            st.session_state["regiao"] = "Todos"
             st.session_state["estado"] = "Todos"
             st.session_state["municipio"] = "Todos"
             st.session_state["municipio_ibge"] = None
@@ -173,9 +195,6 @@ if map_data and map_data.get("last_active_drawing"):
     # =====================================================
     # CLIQUE EM ESTADO (NAVEGAÇÃO BRASIL → ESTADO)
     # =====================================================
-    # Se nenhum estado estiver selecionado, o mapa está
-    # exibindo o Brasil. Nesse caso o clique representa
-    # a seleção de um estado.
     if st.session_state["estado"] == "Todos":
 
         # Converte o nome do estado para sua UF.
@@ -185,11 +204,26 @@ if map_data and map_data.get("last_active_drawing"):
 
         if estado:
 
+            st.session_state["visao"] = "Regional"
+
+            # obtém a região do estado clicado
+            regiao = (
+                df[df["estado"] == estado]
+                ["regiao"]
+                .iloc[0]
+            )
+
+            st.session_state["regiao"] = regiao
+
             # Salva a UF selecionada.
             st.session_state["estado"] = estado
 
             # Salva o nome completo do estado.
             st.session_state["nm_estado"] = nome
+
+            st.session_state["municipio"] = "Todos"
+            
+            st.session_state["municipio_ibge"] = None
 
             # Recarrega a aplicação para renderizar
             # o mapa no nível estadual.
@@ -198,16 +232,10 @@ if map_data and map_data.get("last_active_drawing"):
     # =====================================================
     # CLIQUE EM MUNICÍPIO (NAVEGAÇÃO ESTADO → MUNICÍPIO)
     # =====================================================
-    # Se já existe um estado selecionado e ainda não existe
-    # município selecionado, o clique representa a seleção
-    # de um município dentro do estado.
-    elif st.session_state["municipio"] == "Todos":
+    elif (st.session_state["municipio"] != nome):
 
-        # Salva o nome do município selecionado.
         st.session_state["municipio"] = nome
 
-        # Salva o código IBGE do município para localizar
-        # seu polígono posteriormente.
         st.session_state["municipio_ibge"] = codigo_ibge
 
         # Recarrega a aplicação para renderizar

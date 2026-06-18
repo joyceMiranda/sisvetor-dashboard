@@ -16,7 +16,7 @@ def load_data_dengue():
         pandas.DataFrame
     """
 
-    np.random.seed(42)
+    np.random.seed(14)
 
     # ==========================================================
     # ESTADOS CONTEMPLADOS NO MOCK
