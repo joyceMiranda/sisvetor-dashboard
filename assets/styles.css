@@ -46,18 +46,18 @@ div[data-baseweb="select"] span {
     
 }
 
-/* Remove borda vermelha ao focar */
-.stMultiSelect div[data-baseweb="select"] > div:focus-within {
-    border-color: #d9d9d9 !important;
-    box-shadow: none !important;
+[data-baseweb="tag"] span {
+    max-width: none !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
 }
 
-.sisvetor-caption {
-    font-size: 20px !important;
-    font-weight: 500;
-    color: #555;
-    margin-top: -8px;
-    
+.caption-destaque {
+    font-size: 0.85rem;
+    color: darkred;
+    font-weight: 600;
+    font-size: 36px;
+     
 }
 
 /* Texto dos itens selecionados */
@@ -128,4 +128,21 @@ div[data-testid="stMetricValue"] {
 
 .sisvetor-table tbody tr:hover {
     background-color: #f9f9f9;
+}
+
+/* Cores Linhas alternadas */
+.sisvetor-table tbody tr:nth-child(odd) {
+        background-color: #ffffff;
+
+}
+
+.sisvetor-table tbody tr:nth-child(even) {
+        background-color: #fcfcfc;
+
+}
+
+/* Destaque ao passar o mouse */
+.sisvetor-table tbody tr:hover {
+    background-color: #eef6ff;
+    transition: background-color 0.2s ease;
 }

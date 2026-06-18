@@ -1,10 +1,14 @@
 import streamlit as st
-from data.mock_data import load_data
+from data.mock_data_chagas import load_data_chagas
+from data.mock_data_dengue import load_data_dengue
 
 from components.filters import render_filters
 from components.maps import render_map
 from components.charts import render_charts
-from utils.maps_utils import NOME_UF_MAP
+
+from utils.maps_utils import *
+from utils.maps_utils_chagas import *
+from utils.maps_utils_dengue import *
 
 from components.tables import render_tables
 
@@ -21,15 +25,69 @@ load_css("assets/styles.css")
 
 
 # =========================================================
+# VETOR PADRÃO
+# =========================================================
+if "vetor" not in st.session_state:
+    st.session_state["vetor"] = vetor = "Doença de Chagas"
+
+# =========================================================
 # DADOS
 # =========================================================
-df = load_data()
+if st.session_state["vetor"] == "Dengue":
+    df = load_data_dengue()
+else:
+    df = load_data_chagas()
+
+#st.write(df)
+
+# =========================================================
+# FILTROS
+# =========================================================
+df_filtered, visao, vetor = render_filters(df)
+
+# =========================================================
+# TROCA DE VETOR
+# =========================================================
+if vetor != st.session_state["vetor"]:
+
+    st.session_state["vetor"] = vetor
+
+    # limpa navegação do mapa
+    st.session_state["estado"] = "Todos"
+    st.session_state["municipio"] = "Todos"
+    st.session_state["municipio_ibge"] = None
+
+    st.rerun()
 
 # =========================================================
 # TÍTULO DA PÁGINA
 # =========================================================
-st.title("SISVETOR Chagas — Dashboard de Vigilância Entomológica")
-#st.caption("")
+
+st.title("SisVetor — Dashboard de Vigilância Entomológica")
+
+st.markdown(
+    f'<div class="caption-destaque">{vetor}</div>',
+    unsafe_allow_html=True
+)
+
+st.subheader("📊 Indicadores")
+
+
+if vetor == "Dengue":
+    INDICADORES_FORMULA = INDICADORES_FORMULA_DENGUE
+    INDICADORES_MAP = INDICADORES_MAP_DENGUE
+else:
+    INDICADORES_FORMULA = INDICADORES_FORMULA_CHAGAS
+    INDICADORES_MAP = INDICADORES_MAP_CHAGAS
+
+indicadores = st.multiselect(
+    "📊 Indicadores",
+    options=list(INDICADORES_FORMULA.keys()),
+    default=list(INDICADORES_FORMULA.keys()),
+     format_func=lambda x: INDICADORES_MAP[x],
+    label_visibility="collapsed"
+)
+
 
 st.markdown(
     """
@@ -39,27 +97,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
-st.subheader("📊 Indicadores")
-
-INDICADORES_MAP = {
-    "infestacao": "Infestação",
-    "dispersao": "Dispersão",
-    "colonizacao": "Colonização",
-    "infeccao_natural": "Infecção Natural",
-    "taxa_visitacao": "Taxa de Visitação"
-}
-
-indicadores = st.multiselect(
-    label="📊 Indicadores",
-    options=INDICADORES_MAP,
-    default=list(INDICADORES_MAP),
-    format_func=INDICADORES_MAP.get,
-    label_visibility="collapsed"
-)
-
-
-
 
 # =========================================================
 # ESTADO GLOBAL (MAPA → FILTROS)
@@ -75,10 +112,7 @@ if "municipio_ibge" not in st.session_state:
     st.session_state["municipio_ibge"] = None
 
 
-# =========================================================
-# FILTROS
-# =========================================================
-df_filtered, visao = render_filters(df)
+
 
 # =========================================================
 # APLICA FILTRO DO MAPA (SE HOUVER)
@@ -108,33 +142,14 @@ if df_filtered is None or df_filtered.empty:
             st.rerun()
     st.stop()
 
-# =========================================================
-# INDICE TOTAL
-# =========================================================
-if not indicadores:
-    indicadores = ["infestacao"]
-
 # salva estado global
 st.session_state["df_filtered"] = df_filtered
 
-# =========================================================
-# KPIs
-# =========================================================
-#render_kpis(df_filtered)
 
 # =========================================================
-# LAYOUT
-# =========================================================
-#col_map, col_charts = st.columns([5, 5])
-
-#with col_map:
-
-# =========================================================
-# CAPTURA DE CLIQUES - MAPA FOLIUM
+# MAPA - CAPTURA DE CLIQUES 
 # =========================================================
 
-# Renderiza o mapa e recebe os dados da última feição
-# (estado ou município) clicada pelo usuário.
 map_data = render_map(df_filtered, INDICADORES_MAP, indicadores)
 
 # Verifica se houve clique em algum elemento do mapa.
@@ -207,7 +222,9 @@ st.divider()
 
 render_tables(
     df_filtered,
+    vetor,
     INDICADORES_MAP,
+    INDICADORES_FORMULA,
     indicadores
 )
 

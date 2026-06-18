@@ -36,6 +36,18 @@ def render_filters(df):
         )
     """
 
+
+    # =====================================================
+    # 🦟 VETOR
+    # =====================================================
+    with st.sidebar.expander("🔬 Controle Vetorial", expanded=True):
+
+        vetor = st.selectbox(
+            "Vetor",
+            ["Dengue", "Doença de Chagas"],
+            index=1
+        )
+
     # =====================================================
     # 🌎 VISÃO TERRITORIAL
     # =====================================================
@@ -182,4 +194,4 @@ def render_filters(df):
         ]
     
 
-    return df, visao
+    return df, visao, vetor

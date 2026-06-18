@@ -1,79 +1,8 @@
 import streamlit as st
 import pandas as pd
-from utils.maps_utils import COLUNAS_TABLES_KPI
- 
-# =====================================================
-# CONFIGURAÇÃO DOS INDICADORES
-# =====================================================
-INDICADORES_CONFIG = {
-    "infestacao": {
-        "formula": "IND = (UDs positivas / UDs pesquisadas) × 100",
-        "colunas": [
-            "uds_pesquisadas",
-            "uds_positivas"
-        ],
-        "agregacoes": {
-            "uds_pesquisadas": "sum",
-            "uds_positivas": "sum",
-            "infestacao": "mean"
-        }
-    },
-
-    "dispersao": {
-        "formula": "IND = (Localidades positivas / Localidades pesquisadas) × 100",
-        "colunas": [
-            "localidades_pesquisadas",
-            "localidades_positivas"
-        ],
-        "agregacoes": {
-            "localidades_pesquisadas": "sum",
-            "localidades_positivas": "sum",
-            "dispersao": "mean"
-        }
-    },
-
-    "colonizacao": {
-        "formula": "IND = (UDs com presença de ninfas / UDs positivas) × 100",
-        "colunas": [
-            "uds_positivas",
-            "uds_com_ninfas"
-        ],
-        "agregacoes": {
-            "uds_positivas": "sum",
-            "uds_com_ninfas": "sum",
-            "colonizacao": "mean"
-        }
-    },
-
-    "taxa_visitacao": {
-        "formula": "IND = (UDs apenas adultos / UDs positivas) × 100",
-        "colunas": [
-            "uds_positivas",
-            "uds_apenas_adultos"
-        ],
-        "agregacoes": {
-            "uds_positivas": "sum",
-            "uds_apenas_adultos": "sum",
-            "taxa_visitacao": "mean"
-        }
-    },
-
-    "infeccao_natural": {
-        "formula": "IND = (Triatomíneos infectados / Triatomíneos examinados) × 100",
-        "colunas": [
-            "triatomineos_examinados",
-            "triatomineos_infectados"
-        ],
-        "agregacoes": {
-            "triatomineos_examinados": "sum",
-            "triatomineos_infectados": "sum",
-            "infeccao_natural": "mean"
-        }
-    }
-}
 
 
-def render_tables(df, INDICADORES_MAP, indicadores):
+def render_tables(df, vetor, INDICADORES_MAP, INDICADORES_FORMULA, indicadores):
 
     df_table = df.copy()
 
@@ -88,8 +17,6 @@ def render_tables(df, INDICADORES_MAP, indicadores):
     # =====================================================
     # CONTEXTO TERRITORIAL
     # =====================================================
-    agrupamento = ["estado"]
-
     estado_selecionado = None
     municipio_selecionado = None
 
@@ -98,9 +25,6 @@ def render_tables(df, INDICADORES_MAP, indicadores):
         estado_selecionado = (
             f"{st.session_state['nm_estado']} ({estado_foco})"
         )
-
-        # mantém Estado e Município
-        agrupamento = ["estado", "municipio"]
 
         if municipio_foco != "Todos":
             municipio_selecionado = municipio_foco  
@@ -125,6 +49,21 @@ def render_tables(df, INDICADORES_MAP, indicadores):
         )
 
     # =====================================================
+    # PLACEHOLDER DO BOTÃO DE EXPORTAÇÃO
+    # =====================================================
+    container_exportacao = st.empty()
+
+    # =====================================================
+    # TABELAS PARA EXPORTAÇÃO
+    # =====================================================
+    tabelas_exportacao = []
+
+    # =====================================================
+    # PLACEHOLDER DO BOTÃO DE EXPORTAÇÃO
+    # =====================================================
+    container_exportacao = st.empty()
+
+    # =====================================================
     # FILTRA INDICADORES VÁLIDOS
     # =====================================================
     indicadores_validos = [
@@ -141,67 +80,127 @@ def render_tables(df, INDICADORES_MAP, indicadores):
     # =====================================================
     for indicador in indicadores_validos:
 
-        config = INDICADORES_CONFIG[indicador]
+        formula = INDICADORES_FORMULA[indicador]
 
-        # =====================================================
-        # AGREGAÇÃO
-        # =====================================================
         tabela = (
             df_table
-            .groupby(agrupamento, as_index=False)
-            .agg(config["agregacoes"])
+            .groupby(formula.get("group_by", []), as_index=False)
+            .agg(formula["agregacoes"])
         )
+
+        # =====================================================
+        # RECALCULA INDICADOR APLICANDO O CALCULO DEFINIFO NO MAPS_UTILS
+        # =====================================================
+        if "calculo" in formula:
+
+            tabela[indicador] = (
+                tabela.eval(formula["calculo"])
+                .replace([float("inf"), -float("inf")], 0)
+                .fillna(0)
+                .round(2)
+            )
+     
+
 
         nome_indicador = INDICADORES_MAP[indicador]
 
-        
+        # =====================================================
+        # KPIs DINÂMICOS
+        # =====================================================
+        show_kpi = len(formula["colunas_kpi"]) > 0
+
+        if show_kpi:
+
+            kpis = []
+
+            totais = {}
+
+            for coluna in formula["colunas_kpi"]:
+
+                valor = tabela[coluna].sum()
+
+                totais[coluna] = valor
+
+                kpis.append({
+                    "coluna": coluna,
+                    "label": INDICADORES_MAP[coluna],
+                    "valor": valor
+                })
+
+            if "calculo" in formula:
+
+                taxa_indicador = (
+                    pd.DataFrame([totais])
+                    .eval(formula["calculo"])
+                    .iloc[0]
+                )
+
+            else:
+
+                taxa_indicador = 0
+
+                
+        # =====================================================
+        # FORMATAÇÃO 
+        # =====================================================
+        tabela[indicador] = (
+            tabela[indicador]
+            .round(2)
+            .map(lambda x: f"{x:.2f}%") 
+        )
+
 
         # =====================================================
         # RENOMEIA COLUNAS
         # =====================================================
         rename_cols = {
-            "estado": COLUNAS_TABLES_KPI["estado"],
-            "municipio": COLUNAS_TABLES_KPI["municipio"],
+            "estado": "Estado",
+            "municipio": "Município",
             indicador: nome_indicador
         }
 
-        for col in config["colunas"]:
-            rename_cols[col] = COLUNAS_TABLES_KPI.get(
+        for col in formula["colunas_tabela"]:
+            rename_cols[col] = INDICADORES_MAP.get(
                 col,
                 col.replace("_", " ").title()
             )
 
-        tabela.rename(
+        tabela_exibicao = tabela.copy()
+
+        # =====================================================
+        # FORMATA COLUNAS NUMÉRICAS PARA EXIBIÇÃO
+        # =====================================================        
+        for col in tabela_exibicao.select_dtypes(include="number").columns:
+            if col != indicador:  # não formata o indicador percentual
+                tabela_exibicao[col] = tabela_exibicao[col].apply(
+                    lambda x: f"{x:,.0f}".replace(",", ".")
+                )
+
+        tabela_exibicao.rename(
             columns=rename_cols,
             inplace=True
         )
 
-        # =====================================================
-        # KPIs DINÂMICOS
-        # =====================================================
-        col1 = config["colunas"][0]
-        col2 = config["colunas"][1]
+        colunas_exibicao = []
 
-        label1 = COLUNAS_TABLES_KPI[col1]
-        label2 = COLUNAS_TABLES_KPI[col2]
+        for col in formula["colunas_tabela"]:
 
-        total_campo1 = tabela[label1].sum()
-        total_campo2 = tabela[label2].sum()
+            nome_coluna = rename_cols.get(col, col)
 
-        taxa_indicador = tabela[nome_indicador].mean()
+            if nome_coluna in tabela_exibicao.columns:
+                colunas_exibicao.append(nome_coluna)
 
-        # =====================================================
-        # FORMATAÇÃO
-        # =====================================================
-        tabela[nome_indicador] = (
-            tabela[nome_indicador]
-            .round(2)
-            .map(lambda x: f"{x:.2f}%")
+        tabela_exibicao = tabela_exibicao[colunas_exibicao]
+
+        tabela_exportacao = tabela_exibicao.copy()
+
+        tabela_exportacao.insert(
+            0,
+            "Indicador",
+            nome_indicador
         )
 
-        csv = tabela.to_csv(
-            index=False
-        ).encode("utf-8-sig")
+        tabelas_exportacao.append(tabela_exportacao)
 
         # =====================================================
         # EXPANDER
@@ -211,36 +210,40 @@ def render_tables(df, INDICADORES_MAP, indicadores):
             expanded=True
         ):
             
+            if show_kpi:
 
-
-            kpi1, kpi2, kpi3 = st.columns(3)
-
-            with kpi1:
-                st.metric(
-                    label1,
-                    f"{total_campo1:,.0f}".replace(",", ".")
+                cols = st.columns(
+                    len(formula["colunas_kpi"]) + 1
                 )
 
-            with kpi2:
-                st.metric(
-                    label2,
-                    f"{total_campo2:,.0f}".replace(",", ".")
-                )
+                for i, coluna in enumerate(
+                    formula["colunas_kpi"]
+                ):
 
-            with kpi3:
-                st.metric(
-                    nome_indicador,
-                    f"{taxa_indicador:.2f}%"
-                )
+                    valor = tabela[coluna].sum()
+
+                    with cols[i]:
+
+                        st.metric(
+                            INDICADORES_MAP[coluna],
+                            f"{valor:,.0f}".replace(",", ".")
+                        )
+
+                with cols[-1]:
+
+                    st.metric(
+                        nome_indicador,
+                        f"{taxa_indicador:.2f}%"
+                    )
             
             if st.button(
                 "ℹ️ Fórmula",
                 key=f"info_{indicador}",
                 width="stretch",
                 help="Visualizar Fórmula"):
-                    mostrar_formula(indicador, nome_indicador)
+                    mostrar_formula(indicador, nome_indicador, INDICADORES_FORMULA)
 
-            html_table = tabela.to_html(
+            html_table = tabela_exibicao.to_html(
                 index=False,
                 classes="sisvetor-table",
                 border=0
@@ -251,24 +254,40 @@ def render_tables(df, INDICADORES_MAP, indicadores):
                 unsafe_allow_html=True
             )
 
-            st.download_button(
-                "⬇️ Exportar CSV",
-                csv,
-                file_name=f"{indicador}.csv",
-                mime="text/csv",
-                width="stretch",
-                help="Fazer Download",
-                key=f"download_{indicador}"
-            )
+    # =====================================================
+    # EXPORTAÇÃO CSV
+    # =====================================================
+    if tabelas_exportacao:
+
+        df_exportacao = pd.concat(
+            tabelas_exportacao,
+            ignore_index=True,
+            sort=False
+        )
+
+        csv = df_exportacao.to_csv(
+            index=False,
+            sep=";"
+        ).encode("utf-8-sig")
+
+        container_exportacao.download_button(
+            "⬇️ Exportar Todos",
+            csv,
+            file_name=f"{vetor}_Estado_{estado_foco}_Municipio_{municipio_foco}.csv",
+            mime="text/csv",
+            width="stretch",
+            help="Fazer Download"
+        )
+
 
 @st.dialog("Fórmula do Indicador", width="large")
-def mostrar_formula(indicador, nome_indicador):
+def mostrar_formula(indicador, nome_indicador, INDICADORES_FORMULA):
 
-    config = INDICADORES_CONFIG[indicador]
+    formula = INDICADORES_FORMULA[indicador]
 
     st.markdown(f"**{nome_indicador}**")
 
-    st.code(config["formula"])
+    st.code(formula["calculo"])
 
     '''
     st.markdown("### Variáveis utilizadas")

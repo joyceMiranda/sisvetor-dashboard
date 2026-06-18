@@ -13,6 +13,7 @@ def render_map(df, INDICADORES_MAP, indicadores):
 
     st.subheader("🗺️ Monitoramento Geográfico")
 
+
    
     # =========================================================
     # GEOJSON DOS ESTADOS
@@ -125,17 +126,7 @@ def render_map(df, INDICADORES_MAP, indicadores):
 
         tooltip = f"<b>Município:</b> {municipio_foco} ({estado_foco})<br>"
 
-        if df_municipio['uds_pesquisadas'].sum() > 0:
-
-            tooltip += (
-                f"<b>UDs Pesquisadas:</b> "
-                f"{df_municipio['uds_pesquisadas'].sum()}<br>"
-            )
-
-            tooltip += (
-                f"<b>UDs Positivas:</b> "
-                f"{df_municipio['uds_positivas'].sum()}<br>"
-            )
+        if not df_municipio.empty:
 
             for indicador in indicadores:
                 label = INDICADORES_MAP[indicador]
@@ -213,10 +204,7 @@ def render_map(df, INDICADORES_MAP, indicadores):
 
                 tooltip = f"<b>Estado:</b> {estado_nome} ({uf})<br>"
 
-                if df_estado['uds_pesquisadas'].sum() > 0:
-
-                    tooltip += f"<b>UDs Pesquisadas:</b> {df_estado['uds_pesquisadas'].sum()}<br>"
-                    tooltip += f"<b>UDs Positivas:</b> {df_estado['uds_positivas'].sum()}<br>"
+                if not df_estado.empty:
 
                     for indicador in indicadores:
                         label = INDICADORES_MAP[indicador]
@@ -332,20 +320,7 @@ def render_map(df, INDICADORES_MAP, indicadores):
 
                 tooltip += f"<b>Município:</b> {municipio_nome} ({estado_foco}) <br>"
 
-                if df_municipio['uds_pesquisadas'].sum() > 0:
-
-                    # =========================================================
-                    # INDICADORES FIXOS
-                    # =========================================================
-                    tooltip += (
-                        f"<b>UDs Pesquisadas:</b> "
-                        f"{df_municipio['uds_pesquisadas'].sum()}<br>"
-                    )
-
-                    tooltip += (
-                        f"<b>UDs Positivas:</b> "
-                        f"{df_municipio['uds_positivas'].sum()}<br>"
-                    )
+                if not df_municipio.empty:
 
                     # =========================================================
                     # INDICADORES DINÂMICOS

@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 
-def load_data():
+def load_data_chagas():
     """
     Gera um conjunto de dados simulados para o dashboard SISVETOR.
 
