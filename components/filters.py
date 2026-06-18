@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+from utils.maps_utils import UF_NOME_MAP
 
 
 def render_filters(df):
@@ -10,6 +11,22 @@ def render_filters(df):
 
     # Converte a coluna "data" para o tipo datetime, permitindo operações e análises temporais.
     df["data"] = pd.to_datetime(df["data"])
+
+
+    # =====================================================
+    # INICIALIZAÇÃO DE FILTROS
+    # =====================================================
+    if "estado" not in st.session_state:
+        st.session_state["estado"] = "Todos"
+
+    if "municipio" not in st.session_state:
+        st.session_state["municipio"] = "Todos"
+
+    if "municipio_ibge" not in st.session_state:
+        st.session_state["municipio_ibge"] = None
+
+    if "visao_anterior" not in st.session_state:
+        st.session_state["visao_anterior"] = "Nacional"
 
     
 
@@ -62,6 +79,18 @@ def render_filters(df):
             ["Nacional", "Regional"]
         )
 
+        if (
+            visao == "Nacional"
+            and st.session_state["visao_anterior"] == "Regional"
+        ):
+            st.session_state["estado"] = "Todos"
+            st.session_state["nm_estado"] = ""
+            st.session_state["municipio"] = "Todos"
+            st.session_state["municipio_ibge"] = None
+
+
+        st.session_state["visao_anterior"] = visao
+
         if visao == "Regional":
 
             # =========================
@@ -83,8 +112,11 @@ def render_filters(df):
                     ["Todos"] + sorted(df["estado"].unique())
                 )
 
+                st.session_state["estado"] = estado
+
                 if estado != "Todos":
                     df = df[df["estado"] == estado]
+                    st.session_state["nm_estado"] = UF_NOME_MAP[estado]
 
                     # =========================
                     # MUNICÍPIO
@@ -94,8 +126,27 @@ def render_filters(df):
                         ["Todos"] + sorted(df["municipio"].unique())
                     )
 
+                    st.session_state["municipio"] = municipio
+
                     if municipio != "Todos":
+                        
                         df = df[df["municipio"] == municipio]
+
+                        municipio_ibge = (
+                            df[df["municipio"] == municipio]
+                            ["municipio_ibge"]
+                            .astype(str) #converte para texto
+                            .iloc[0] #pega o primeiro valor
+                        )
+                    
+                        st.session_state["municipio_ibge"] = municipio_ibge
+                    else:
+                        st.session_state["municipio_ibge"] = None
+
+                    
+                else:
+                    st.session_state["municipio"] = "Todos"
+                    st.session_state["municipio_ibge"] = None
 
             else:
                 st.info("Selecione uma região para detalhar estados e municípios.")
@@ -195,3 +246,5 @@ def render_filters(df):
     
 
     return df, visao, vetor
+
+

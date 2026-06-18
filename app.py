@@ -125,7 +125,7 @@ if st.session_state["estado"] != "Todos":
 if st.session_state["municipio_ibge"]:
 
     df_filtered = df_filtered[
-        df_filtered["cod_ibge"] ==
+        df_filtered["municipio_ibge"] ==
         st.session_state["municipio_ibge"]
     ]
 

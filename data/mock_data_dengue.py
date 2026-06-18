@@ -148,7 +148,7 @@ def load_data_dengue():
                             "mes": mes,
                             "estado": uf,
                             "municipio": mun,
-                            "cod_ibge": municipios_ibge[mun],
+                            "municipio_ibge": municipios_ibge[mun],
                             "regiao": regiao,
                             "unidade": "Ministério da Saúde",
                             "subunidade": ses,
